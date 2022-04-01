@@ -110,15 +110,24 @@ bool cmd_check(char * cmd, head * hd, f_head * f_hd) {
         export(hd, cmd);
     }
     else if(func_cmp(cmd, "Delete All")) {
-        //delete_all(hd, f_hd);
-    } else if(func_cmp(cmd, "Show")) {
+        delete_all(hd, f_hd);
+    }
+    else if(func_cmp(cmd, "Delete By")) {
+        //delete_by(hd, f_hd, cmd);
+    }
+    else if(func_cmp(cmd, "Delete")) {
+        //delete(hd, cmd);
+    }
+    else if(func_cmp(cmd, "Show")) {
         show(hd, cmd);
     }
     else if(func_cmp(cmd, "Quick")) {
         quick_look(hd);
-    } else if(func_cmp(cmd, "Help")) {
+    }
+    else if(func_cmp(cmd, "Help")) {
         help(cmd);
-    } else if(func_cmp(cmd, "Clear")) clear
+    }
+    else if(func_cmp(cmd, "Clear")) clear
     else {
         printf("typo error: Command not found: %s\n", cmd);
         if(cmd[0] > 'Z' || cmd[0] < 'A') printf("Note that all commands start with capital letter\n");
@@ -399,6 +408,13 @@ void csv_line_parser(head *hd, f_head* f_hd, char* line) {
     free(splitLine);
 }
 
+void delete_all(head * hd, f_head * f_hd) {
+    hd->first = NULL; hd->last = NULL;
+    hd->cnt = 0;
+    f_hd->first = NULL; f_hd->last = NULL;
+    f_hd->cnt = 0;
+}
+
 f_node * foreign_key(f_head *f_hd, char* fac_name) {
     f_node * node, * res;
     bool found;
@@ -531,17 +547,19 @@ char* just_copy(const char* st) {
 void help(char * cmd) {
     if (!strcmp(cmd, "Help"))
         printf("Available Commands:\n"
-               "Quit                           - to quit\n"
-               "Enter <csv/lbl>                - to fill Kartoteka from keyboard\n"
-               "Import <file name>             - to fill Kartoteka from file\n" // Not Done
-               "Export <file name>             - to make file from Kartoteka data\n" // Not Done
-               "Show <max amount>              - show up to positive max amount of lines\n" // Not Done
-               "Change <N>                     - Change line #N\n" // Not Done
-               "Sort <column> <a/d>            - Sort column ascending/descending\n" // Not Done
-               "Filter <column> < (how)value>  - Get All lines with necessary value\n"
-               "Delete All                     - to delete Kartoteka database and start from the beginning\n" // Not Done
-               "Quick                          - to quick look data in Kartoteka\n"
-               "Help <Command>                 - for documentation\n\n" // Unfinished
+               "Quit                             - to quit\n"
+               "Enter <csv/lbl>                  - to fill Kartoteka from keyboard\n"
+               "Import <file name>               - to fill Kartoteka from file\n"
+               "Export <file name>               - to make file from Kartoteka data\n"
+               "Show <max amount>                - show up to positive max amount of lines\n"
+               "Change <N>                       - Change line #N\n" // Not Done
+               "Sort <column> <a/d>              - Sort column ascending/descending\n" // Not Done
+               "Filter <column> <(how)value>     - Get All lines with necessary value\n" // Not Done
+               "Delete All                       - to delete all Kartoteka database\n"
+               "Delete <N>                       - Delete line #N\n" // Not Done
+               "Delete by <column> <(how)value>  - Delete lines with necessary value\n" // Not Done
+               "Quick                            - to quick look data in Kartoteka\n"
+               "Help <Command>                   - for documentation\n\n" // Unfinished
                "Use Help <Command> for specific Function documentation\n\n");
     else {
         cmd += 4;
