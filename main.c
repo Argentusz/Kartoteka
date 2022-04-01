@@ -36,7 +36,7 @@ typedef struct student_head {
 void csv_line_parser(head *hd, f_head* f_hd, char* line);
 char** split(char *line, char sep);
 char* bgets(char *st, int len, FILE *fp);
-int ibgets(char *st, FILE *fp);
+int ibgets(FILE *fp);
 float fbgets(char *st, FILE *fp);
 f_node * foreign_key(f_head *f_hd, char* fac_name);
 void make_new_f(f_head * f_hd, char * node_name);
@@ -51,8 +51,10 @@ bool func_cmp(char * cmd, char * compare);
 void help(char * cmd);
 char* just_copy(const char* st);
 void delete_all(head * hd, f_head * f_hd);
+void delete(head * hd, char * cmd);
 int strcount(char* in, char* substring);
 void show(head * hd, char * cmd);
+void new_no(head * hd);
 
 int main() {
     f_head * f_hd;
@@ -116,7 +118,7 @@ bool cmd_check(char * cmd, head * hd, f_head * f_hd) {
         //delete_by(hd, f_hd, cmd);
     }
     else if(func_cmp(cmd, "Delete")) {
-        //delete(hd, cmd);
+        delete(hd, cmd);
     }
     else if(func_cmp(cmd, "Show")) {
         show(hd, cmd);
@@ -173,16 +175,16 @@ void enter(head * hd, f_head * f_hd, char * cmd) {
             bgets(temp, 32 - 1, stdin);
             student->faculty = foreign_key(f_hd, temp);
             printf("Enter the Age: ");
-            student->age = ibgets(temp, stdin);
+            student->age = ibgets(stdin);
             printf("Enter the ID: ");
-            student->id = ibgets(temp, stdin);
+            student->id = ibgets(stdin);
             printf("Enter the Average Score: ");
             student->avg_score = fbgets(temp, stdin);
             printf("Enter the Completion Rate: ");
             student->completion_rate = fbgets(temp, stdin);
             for (i = 0; i < 3; i++) {
                 printf("Enter the GIA Result #%d: ", i + 1);
-                student->gia_results[i] = ibgets(temp, stdin);
+                student->gia_results[i] = ibgets(stdin);
             }
             student->no = ++hd->cnt;
             student->next = NULL;
@@ -345,7 +347,7 @@ void show(head * hd, char * cmd) {
             while ((*st > '9' || *st < '0') && *st != '-') {
                 printf("typo error: Argument of Show function should be a number.\n"
                        "Print number of max lines (0 if no bounds, -1 to cancel): ");
-                maks = ibgets(st, stdin);
+                maks = ibgets(stdin);
             }
         else maks = (int)strtol(st, NULL, 10);
     }
@@ -409,10 +411,76 @@ void csv_line_parser(head *hd, f_head* f_hd, char* line) {
 }
 
 void delete_all(head * hd, f_head * f_hd) {
-    hd->first = NULL; hd->last = NULL;
-    hd->cnt = 0;
-    f_hd->first = NULL; f_hd->last = NULL;
-    f_hd->cnt = 0;
+    node * temp;
+    f_node * f_temp;
+    if (hd->cnt > 0) {
+        temp = hd->first;
+        hd->first = NULL;
+        hd->last = NULL;
+        hd->cnt = 0;
+        if(temp->next != NULL) {
+            for (temp = temp->next; temp->next != NULL; free(temp->prev), temp = temp->next);
+            free(temp->prev);
+            free(temp);
+        } else {
+            free(temp);
+        }
+    }
+    if(f_hd->cnt > 0)
+    {
+        f_temp = f_hd->first;
+        f_hd->first = NULL;
+        f_hd->last = NULL;
+        f_hd->cnt = 0;
+        if(f_temp->next != NULL) {
+            for (f_temp = f_temp->next; f_temp->next != NULL; free(f_temp->prev), f_temp = f_temp->next);
+            free(f_temp->prev);
+            free(f_temp);
+        } else {
+            free(f_temp);
+        }
+    }
+}
+
+void delete(head * hd, char * cmd) {
+    int no;
+    node * student;
+    if(*(cmd + 6) != '\0') {
+        cmd += 7;
+        if(*cmd < '9' && *cmd > '0') no = (int)strtol(cmd, NULL, 10);
+        else {
+            printf("Argument of Delete function should be a number.\n"
+                   "Print number of a line to delete (0 to cancel): ");
+            no = ibgets(stdin);
+        }
+    } else {
+        printf("Print No of element to delete (0 to cancel): ");
+        no = ibgets(stdin);
+    }
+    if(no > 0 && no <= hd->cnt) {
+        for(student = hd->first; student != NULL && student->no != no; student = student->next);
+        if (student == NULL) printf("error: Element with No %d not found\n", no);
+        else {
+            if(no == 1) {
+                hd->first = student->next;
+                hd->first->prev = NULL;
+                free(student);
+            }
+            else if (no == hd->cnt) {
+                hd->last = student->prev;
+                hd->last->next = NULL;
+                free(student);
+            }
+            else {
+                student->prev->next = student->next;
+                student->next->prev = student->prev;
+                free(student);
+            }
+            hd->cnt--;
+            new_no(hd);
+        }
+    }
+    else if (no > hd->cnt) printf("error: This No is out of bounds\n");
 }
 
 f_node * foreign_key(f_head *f_hd, char* fac_name) {
@@ -443,6 +511,7 @@ void make_new_f(f_head * f_hd, char * node_name) {
         f_hd->last = node;
     } else {
         node->prev = f_hd->last;
+        node->prev->next = node;
         f_hd->last = node;
     }
     f_hd->cnt++;
@@ -493,7 +562,9 @@ char* bgets(char *st, int const len, FILE *fp) {
     return err;
 }
 
-int ibgets(char *st, FILE *fp) {
+int ibgets(FILE *fp) {
+    char * st;
+    st = malloc(11);
     return (int)strtol(bgets(st, 11, fp), NULL, 10);
 }
 
@@ -542,6 +613,12 @@ char* just_copy(const char* st) {
     res = malloc(len);
     for(i = 0; i < len; *(res + i) = *(st + i), i++);
     return res;
+}
+
+void new_no(head * hd) {
+    node * student;
+    int i;
+    for(i = 0, student = hd->first; student != NULL; student->no = ++i, student = student->next);
 }
 
 void help(char * cmd) {
