@@ -130,7 +130,6 @@ bool cmd_check(char * cmd, head * hd, f_head * f_hd) {
 void enter(head * hd, f_head * f_hd, char * cmd) {
     char * mode, * temp, * yn;
     node * student;
-    f_node * fac;
     int i;
     mode = malloc(2);
     if (*(cmd+5) != '\0') {
@@ -213,11 +212,94 @@ void enter(head * hd, f_head * f_hd, char * cmd) {
 }
 
 void import(head * hd, f_head * f_hd, char * cmd) {
-    printf("error: Import function is not done yet.\n\n");
+    FILE * fp = NULL;
+    char * file_name, * line;
+    bool cancel;
+    file_name = malloc(32);
+
+    if(*(cmd+6) != '\0') {
+        cmd += 7;
+        file_name = just_copy(cmd);
+    } else {
+        printf("Type File Name to import from (Just hit Enter to cancel): ");
+        bgets(file_name, 31, stdin);
+    }
+
+    cancel = 0;
+    if(*file_name != '\0') fp = fopen(file_name, "r");
+    else cancel = 1;
+
+    while(fp == NULL && cancel == 0) {
+        printf("typo error: Can not open file '%s'. Maybe that file does not exist?\n"
+               "Type file name once again (Just hit Enter to cancel): ", file_name);
+        bgets(file_name, 31, stdin);
+        if(*file_name != '\0') fp = fopen(file_name, "r");
+        else cancel = 1;
+    }
+
+    if(!cancel) {
+        line = malloc(128);
+        while (bgets(line, 128, fp) != NULL) {
+            csv_line_parser(hd, f_hd, line);
+        }
+    }
+
+    fclose(fp);
 }
 
 void export(head * hd, char * cmd) {
-    printf("error: Export function is not done yet.\n\n");
+    FILE * fp = NULL;
+    char * file_name, * yn;
+    node * temp;
+    unsigned long i;
+    bool cancel;
+    cancel = 0;
+    if(hd->cnt == 0) {
+        printf("warning: Kartoteka is empty.\n"
+               "Are you sure you want to continue? (Y/N): ");
+        yn = malloc(3);
+        bgets(yn, 11, stdin);
+        cancel = 1;
+        if((*yn == 'Y' || *yn == 'y') && *(yn+1) == '\0') cancel = 0;
+    }
+    if(!cancel) {
+        file_name = malloc(32);
+
+        if (*(cmd + 6) != '\0') {
+            cmd += 7;
+            file_name = just_copy(cmd);
+        } else {
+            printf("Type File Name to export to (Just hit Enter to cancel): ");
+            bgets(file_name, 31, stdin);
+        }
+
+        cancel = 0;
+        if (*file_name != '\0') fp = fopen(file_name, "r");
+        else cancel = 1;
+        if (fp != NULL) {
+            yn = malloc(3);
+            cancel = 1;
+            printf("warning: File '%s' already exists.\n"
+                   "This will overwrite file\n"
+                   "Are you sure you want to continue? (Y/N): ", file_name);
+            bgets(yn, 11, stdin);
+            if ((*yn == 'Y' || *yn == 'y') && *(yn + 1) == '\0') cancel = 0;
+        }
+        fclose(fp);
+
+        if (!cancel) {
+            fp = fopen(file_name, "w");
+            for (temp = hd->first, i = 0; temp != NULL; temp = temp->next, i++) {
+                fprintf(fp, "%s;%s;%d;%d;%.3f;%.2f;%d;%d;%d",
+                        temp->name,
+                        temp->faculty->name, temp->age, temp->id,
+                        temp->avg_score, temp->completion_rate,
+                        temp->gia_results[0], temp->gia_results[1], temp->gia_results[2]);
+                if (temp->next != NULL) fprintf(fp, "\n");
+            }
+        }
+    }
+    fclose(fp);
 }
 
 void quick_look(head * hd) {
@@ -272,7 +354,7 @@ void show(head * hd, char * cmd) {
                        temp->avg_score, temp->completion_rate,
                        temp->gia_results[0], temp->gia_results[1], temp->gia_results[2]);
             }
-            if (hd->cnt - 5 > 0) {
+            if (hd->cnt - maks > 0 && maks > 0) {
                 for (i = 0; i <= 85; i++) printf("-");
                 printf("\n| Hidden : %-5d %68s|\n", hd->cnt - maks, " ");
             }
@@ -398,6 +480,7 @@ char* bgets(char *st, int const len, FILE *fp) {
 int ibgets(char *st, FILE *fp) {
     return (int)strtol(bgets(st, 11, fp), NULL, 10);
 }
+
 float fbgets(char *st, FILE *fp) {
     return atof(bgets(st, 11, fp));
 }
