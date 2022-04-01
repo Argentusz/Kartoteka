@@ -52,6 +52,8 @@ void help(char * cmd);
 char* just_copy(const char* st);
 void delete_all(head * hd, f_head * f_hd);
 int strcount(char* in, char* substring);
+void show(head * hd, char * cmd);
+
 int main() {
     f_head * f_hd;
     head * hd;
@@ -109,6 +111,8 @@ bool cmd_check(char * cmd, head * hd, f_head * f_hd) {
     }
     else if(func_cmp(cmd, "Delete All")) {
         //delete_all(hd, f_hd);
+    } else if(func_cmp(cmd, "Show")) {
+        show(hd, cmd);
     }
     else if(func_cmp(cmd, "Quick")) {
         quick_look(hd);
@@ -207,9 +211,11 @@ void enter(head * hd, f_head * f_hd, char * cmd) {
         }
     }
 }
+
 void import(head * hd, f_head * f_hd, char * cmd) {
     printf("error: Import function is not done yet.\n\n");
 }
+
 void export(head * hd, char * cmd) {
     printf("error: Export function is not done yet.\n\n");
 }
@@ -222,7 +228,7 @@ void quick_look(head * hd) {
     if (!hd->cnt) printf("Kartoteka is empty for now.\n"
                          "Use Enter or Import to fill it.\n");
     else {
-        printf("| %-2s | %-2s | %-23s | %-7s | %-3s | %3s | %2s | %15s |\n", "No", "ID", "Name", "Faculty", "Age", "Avg.Scr", "CR","GIA Results");
+        printf("| %-2s | %-2s | %-23s | %-7s | %-3s | %3s | %2s | %-15s |\n", "No", "ID", "Name", "Faculty", "Age", "Score", "C.R.","GIA Results");
         for (temp = hd->first; temp != NULL && count < 5; temp = temp->next, count++) {
             printf("| %-2d | %-2d | %-23s | %-7s | %-3d | %.3f | %.2f | %-3d | %-3d | %-3d |\n",
                    temp->no, temp->id, temp->name,
@@ -236,6 +242,43 @@ void quick_look(head * hd) {
            "Type Quit to quit\n\n");
 }
 
+void show(head * hd, char * cmd) {
+    int maks;
+    unsigned int i;
+    char * st = NULL;
+    node * temp;
+    maks = 0;
+    if(*(cmd+4) != '\0') {
+        st = cmd + 5;
+        if(*st > '9' || *st < '0')
+        while ((*st > '9' || *st < '0') && *st != '-') {
+            printf("typo error: Argument of Show function should be a number.\n"
+                   "Print number of max lines (0 if no bounds, -1 to cancel): ");
+            maks = ibgets(st, stdin);
+        }
+        else maks = (int)strtol(st, NULL, 10);
+    }
+    if (maks != -1) {
+        if (!hd->cnt)
+            printf("Kartoteka is empty for now.\n"
+                   "Use Enter or Import to fill it.\n");
+        else {
+            printf("| %-2s | %-2s | %-23s | %-7s | %-3s | %3s | %2s | %-15s |\n", "No", "ID", "Name", "Faculty", "Age",
+                   "Score", "C.R.", "GIA Results");
+            for (temp = hd->first, i = 0; temp != NULL && (i < maks || maks == 0); temp = temp->next, i++) {
+                printf("| %-2d | %-2d | %-23s | %-7s | %-3d | %.3f | %.2f | %-3d | %-3d | %-3d |\n",
+                       temp->no, temp->id, temp->name,
+                       temp->faculty->name, temp->age,
+                       temp->avg_score, temp->completion_rate,
+                       temp->gia_results[0], temp->gia_results[1], temp->gia_results[2]);
+            }
+            if (hd->cnt - 5 > 0) {
+                for (i = 0; i <= 85; i++) printf("-");
+                printf("\n| Hidden : %-5d %68s|\n", hd->cnt - maks, " ");
+            }
+        }
+    }
+}
 
 void csv_line_parser(head *hd, f_head* f_hd, char* line) {
     int j;
@@ -406,7 +449,7 @@ void help(char * cmd) {
     if (!strcmp(cmd, "Help"))
         printf("Available Commands:\n"
            "Quit                           - to quit\n"
-           "Enter <csv/lbl>                - to fill Kartoteka from keyboard\n" // Unfinished
+           "Enter <csv/lbl>                - to fill Kartoteka from keyboard\n"
            "Import <file name>             - to fill Kartoteka from file\n" // Not Done
            "Export <file name>             - to make file from Kartoteka data\n" // Not Done
            "Show <max amount>              - show up to positive max amount of lines\n" // Not Done
@@ -423,5 +466,20 @@ void help(char * cmd) {
         if (!strcmp(cmd, "Quit"))
             printf("Quit function is used to terminate Kartoteka\n"
                    "Just type 'Quit' if you had enough.\n\n");
+        if (!strcmp(cmd, "Enter"))
+            printf("Enter function is used to fill Kartoteka database from keyboard.\n"
+                   "You can fill with 'Line by Line' mode or 'CSV' mode\n"
+                   "Command 'Enter' will lead to menu where you can choose between them\n"
+                   "However, you can type 'Enter csv' or 'Enter lbl' to get right into necessary mode.\n"
+                   "\n"
+                   "Usage Example:\n"
+                   "Enter csv\none;two;3;4;5;6;7;8;9\n\n");
+        if(!strcmp(cmd, "Show"))
+            printf("Show function is used to print all the data from Kartoteka\n"
+                   "By Default prints all the lines\n"
+                   "You can also give an argument of max amount of lines to print.\n"
+                   "\n"
+                   "Usage Example:\n"
+                   "Show 5\n\n");
     }
 }
