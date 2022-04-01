@@ -333,11 +333,11 @@ void show(head * hd, char * cmd) {
     if(*(cmd+4) != '\0') {
         st = cmd + 5;
         if(*st > '9' || *st < '0')
-        while ((*st > '9' || *st < '0') && *st != '-') {
-            printf("typo error: Argument of Show function should be a number.\n"
-                   "Print number of max lines (0 if no bounds, -1 to cancel): ");
-            maks = ibgets(st, stdin);
-        }
+            while ((*st > '9' || *st < '0') && *st != '-') {
+                printf("typo error: Argument of Show function should be a number.\n"
+                       "Print number of max lines (0 if no bounds, -1 to cancel): ");
+                maks = ibgets(st, stdin);
+            }
         else maks = (int)strtol(st, NULL, 10);
     }
     if (maks != -1) {
@@ -531,18 +531,18 @@ char* just_copy(const char* st) {
 void help(char * cmd) {
     if (!strcmp(cmd, "Help"))
         printf("Available Commands:\n"
-           "Quit                           - to quit\n"
-           "Enter <csv/lbl>                - to fill Kartoteka from keyboard\n"
-           "Import <file name>             - to fill Kartoteka from file\n" // Not Done
-           "Export <file name>             - to make file from Kartoteka data\n" // Not Done
-           "Show <max amount>              - show up to positive max amount of lines\n" // Not Done
-           "Change <N>                     - Change line #N\n" // Not Done
-           "Sort <column> <a/d>            - Sort column ascending/descending\n" // Not Done
-           "Filter <column> < (how)value>  - Get All lines with necessary value\n"
-           "Delete All                     - to delete Kartoteka database and start from the beginning\n" // Not Done
-           "Quick                          - to quick look data in Kartoteka\n"
-           "Help <Command>                 - for documentation\n\n" // Unfinished
-           "Use Help <Command> for specific Function documentation\n\n");
+               "Quit                           - to quit\n"
+               "Enter <csv/lbl>                - to fill Kartoteka from keyboard\n"
+               "Import <file name>             - to fill Kartoteka from file\n" // Not Done
+               "Export <file name>             - to make file from Kartoteka data\n" // Not Done
+               "Show <max amount>              - show up to positive max amount of lines\n" // Not Done
+               "Change <N>                     - Change line #N\n" // Not Done
+               "Sort <column> <a/d>            - Sort column ascending/descending\n" // Not Done
+               "Filter <column> < (how)value>  - Get All lines with necessary value\n"
+               "Delete All                     - to delete Kartoteka database and start from the beginning\n" // Not Done
+               "Quick                          - to quick look data in Kartoteka\n"
+               "Help <Command>                 - for documentation\n\n" // Unfinished
+               "Use Help <Command> for specific Function documentation\n\n");
     else {
         cmd += 4;
         for(; *cmd == ' '; cmd++);
