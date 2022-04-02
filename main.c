@@ -380,7 +380,7 @@ void show(head * hd, char * cmd) {
 
 void change(head * hd, f_head * f_hd, char * cmd) {
     int no, num_len, i, line;
-    char * mode, * temp;
+    char * mode, * temp, ** splitLine;
     node * student;
 
     mode = malloc(3);
@@ -454,7 +454,27 @@ void change(head * hd, f_head * f_hd, char * cmd) {
                     }
                     free(temp);
                 } else if (*mode == 'c') {
-
+                    temp = malloc(128);
+                    bgets(temp, 127, stdin);
+                    if(strcount(temp, ";") != 8) {
+                        printf("typo error: Wrong Amount of Members in CSV\n"
+                               "Input Should be something like 'one;two;3;4;5;6;7;8;9'\n"
+                               "Type Stop to finish\n");
+                    } else {
+                        splitLine = split(temp, ';');
+                        if (splitLine == NULL) {
+                            printf("fatal error: Unknown Memory Error while parsing CSV line. (Change: splitLine)\n");
+                            exit(1);
+                        }
+                        student->name = splitLine[0];
+                        student->faculty = foreign_key(f_hd, splitLine[1]);
+                        student->age = (int) strtol(splitLine[2], NULL, 10);
+                        student->id = (int) strtol(splitLine[3], NULL, 10);
+                        student->avg_score = (float) atof(splitLine[4]);
+                        student->completion_rate = (float) atof(splitLine[5]);
+                        for (i = 0; i < 3; i++) student->gia_results[i] = (int) strtol(splitLine[6 + i], NULL, 10);
+                        free(splitLine);
+                    }
                 }
             }
         }
@@ -718,7 +738,7 @@ void help(char * cmd) {
                "Import <file name>               - to fill Kartoteka from file\n"
                "Export <file name>               - to make file from Kartoteka data\n"
                "Show <max amount>                - to show up to positive max amount of lines\n"
-               "Change <N>                       - to change line #N\n" // Not Done
+               "Change <N>                       - to change line #N\n"
                "Sort <column> <a/d>              - to sort column ascending/descending\n" // Not Done
                "Filter <column> <(how)value>     - to get all lines with necessary value\n" // Not Done
                "Delete All                       - to delete all Kartoteka database\n"
@@ -734,7 +754,7 @@ void help(char * cmd) {
         if (!strcmp(cmd, "Quit"))
             printf("Quit function is used to terminate Kartoteka\n"
                    "Just type 'Quit' if you had enough.\n\n");
-        if (!strcmp(cmd, "Enter"))
+        else if (func_cmp(cmd, "Enter"))
             printf("Enter function is used to fill Kartoteka database from keyboard.\n"
                    "You can fill with 'Line by Line' mode or 'CSV' mode\n"
                    "Command 'Enter' will lead to menu where you can choose between them\n"
@@ -742,12 +762,60 @@ void help(char * cmd) {
                    "\n"
                    "Usage Example:\n"
                    "Enter csv\none;two;3;4;5;6;7;8;9\n\n");
-        if(!strcmp(cmd, "Show"))
+        else if(func_cmp(cmd, "Show"))
             printf("Show function is used to print all the data from Kartoteka\n"
                    "By Default prints all the lines\n"
                    "You can also give an argument of max amount of lines to print.\n"
                    "\n"
                    "Usage Example:\n"
                    "Show 5\n\n");
+        else if(func_cmp(cmd, "Import"))
+            printf("Import function is used to get Kartoteka lines from csv line\n"
+                   "You can type Import and then choose a file\n"
+                   "Or just type Import <name of file>\n"
+                   "\n"
+                   "Usage Example:\n"
+                   "Import example.txt\n\n");
+        else if(func_cmp(cmd, "Export"))
+            printf("Export function is used to write Kartoteka lines in CSV format into a file.\n"
+                   "This file can be later imported in Kartoteka\n"
+                   "You can type Export and then choose a file\n"
+                   "Or just type Export <name of file>\n\n"
+                   "Note: If file with a given name does not exist,\n"
+                   "it will be automatically created in Kartoteka folder.\n"
+                   "\n"
+                   "Usage Example:\n"
+                   "Export example.txt\n\n");
+        else if(func_cmp(cmd, "Change"))
+            printf("Change function is used to change line with a specific No from keyboard\n"
+                   "You can type a new line in CSV format or in Line by Line mode.\n"
+                   "You can type Change and then pick all the parameters\n"
+                   "Or just type Change <No> <csv/lbl>\n"
+                   "\n"
+                   "Usage Example:\n"
+                   "Change 1 csv\n\n");
+        else if(func_cmp(cmd, "Delete All"))
+            printf("Delete All function is used to delete all Kartoteka database\n"
+                   "All the lines and faculties will be deleted.\n\n");
+        else if(func_cmp(cmd, "Delete"))
+            printf("Delete function is used to delete line with a specific No\n"
+                   "You can type Delete and the pick a No\n"
+                   "Or just type Delete <No>\n"
+                   "\n"
+                   "Usage Example:\n"
+                   "Delete 2\n\n");
+        else if(func_cmp(cmd, "Quick"))
+            printf("Quick function is used to quickly Show 5.\n"
+                   "Use it if you need to check if the Kartoteka has changed\n\n");
+        else if(func_cmp(cmd, "Clear"))
+            printf("Clear function is used to clear your terminal.\n\n");
+        else if(func_cmp(cmd, "Help"))
+            printf("Help function is used to keep documentation\n"
+                   "And access it from the program\n"
+                   "With no arguments shows all the available Kartoteka commands\n"
+                   "Can also show documentation of the specific function\n"
+                   "\n"
+                   "Usage Example:\n"
+                   "Help Enter\n\n");
     }
 }
