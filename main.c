@@ -56,6 +56,10 @@ int strcount(char* in, char* substring);
 void show(head * hd, char * cmd);
 void new_no(head * hd);
 void change(head * hd, f_head * f_hd, char * cmd);
+void sort(head * hd, char * cmd);
+void swap(node * temp0, node * temp1);
+void swap_cpy_internal(node * buff, node * temp1);
+void q_sort_internal(node * left, node * right);
 
 int main() {
     f_head * f_hd;
@@ -123,6 +127,9 @@ bool cmd_check(char * cmd, head * hd, f_head * f_hd) {
     }
     else if(func_cmp(cmd, "Show")) {
         show(hd, cmd);
+    }
+    else if(func_cmp(cmd, "Sort")) {
+        sort(hd, cmd);
     }
     else if(func_cmp(cmd, "Change")) {
         change(hd, f_hd, cmd);
@@ -470,8 +477,8 @@ void change(head * hd, f_head * f_hd, char * cmd) {
                         student->faculty = foreign_key(f_hd, splitLine[1]);
                         student->age = (int) strtol(splitLine[2], NULL, 10);
                         student->id = (int) strtol(splitLine[3], NULL, 10);
-                        student->avg_score = (float) atof(splitLine[4]);
-                        student->completion_rate = (float) atof(splitLine[5]);
+                        student->avg_score = (float)atof(splitLine[4]);
+                        student->completion_rate = (float)atof(splitLine[5]);
                         for (i = 0; i < 3; i++) student->gia_results[i] = (int) strtol(splitLine[6 + i], NULL, 10);
                         free(splitLine);
                     }
@@ -528,7 +535,6 @@ void delete_all(head * hd, f_head * f_hd) {
         hd->cnt = 0;
         if(temp->next != NULL) {
             for (temp = temp->next; temp->next != NULL; free(temp->prev), temp = temp->next);
-            free(temp->prev);
             free(temp);
         } else {
             free(temp);
@@ -590,6 +596,59 @@ void delete(head * hd, char * cmd) {
         }
     }
     else if (no > hd->cnt) printf("error: This No is out of bounds\n");
+}
+
+void sort(head * hd, char * cmd) {
+    q_sort_internal(hd->first, hd->last);
+}
+
+void q_sort_internal(node * left, node * right) {
+    node * last, * current;
+    if (left != right) {
+        if (left->next == right) {
+            if (left->id > right->id)
+                swap(left, right);
+        } else {
+            last = left;
+            current = left;
+            do {
+                current = current->next;
+                if (current->id < left->id) {
+                    last = last->next;
+                    swap(last, current);
+                }
+            } while (current != right);
+            swap(left, last);
+            q_sort_internal(left, last);
+            if (last != right)
+                q_sort_internal(last->next, right);
+        }
+    }
+
+}
+
+void swap(node * temp0, node * temp1) {
+    node * buff;
+
+    buff = (node*)malloc(sizeof(node));
+
+    swap_cpy_internal(buff, temp1);
+    swap_cpy_internal(temp1, temp0);
+    swap_cpy_internal(temp0, buff);
+
+    free(buff);
+}
+
+void swap_cpy_internal(node * buff, node * temp1) {
+    buff->name = just_copy(temp1->name);
+    buff->faculty = temp1->faculty;
+    buff->age = temp1->age;
+    buff->id = temp1->id;
+    buff->avg_score = temp1->avg_score;
+    buff->completion_rate = temp1->completion_rate;
+    buff->gia_results[0] = temp1->gia_results[0];
+    buff->gia_results[1] = temp1->gia_results[1];
+    buff->gia_results[2] = temp1->gia_results[2];
 }
 
 f_node * foreign_key(f_head *f_hd, char* fac_name) {
@@ -678,7 +737,8 @@ int ibgets(FILE *fp) {
 }
 
 float fbgets(char *st, FILE *fp) {
-    return atof(bgets(st, 11, fp));
+    st = malloc(31);
+    return (float)atof(bgets(st, 31, fp));
 }
 
 bool func_cmp(char * cmd, char * compare) {
@@ -721,6 +781,7 @@ char* just_copy(const char* st) {
     len = strlen(st);
     res = malloc(len);
     for(i = 0; i < len; *(res + i) = *(st + i), i++);
+    *(res + i) = '\0';
     return res;
 }
 
