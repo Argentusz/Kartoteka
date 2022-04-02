@@ -55,6 +55,7 @@ void delete(head * hd, char * cmd);
 int strcount(char* in, char* substring);
 void show(head * hd, char * cmd);
 void new_no(head * hd);
+void change(head * hd, f_head * f_hd, char * cmd);
 
 int main() {
     f_head * f_hd;
@@ -123,6 +124,9 @@ bool cmd_check(char * cmd, head * hd, f_head * f_hd) {
     else if(func_cmp(cmd, "Show")) {
         show(hd, cmd);
     }
+    else if(func_cmp(cmd, "Change")) {
+        change(hd, f_hd, cmd);
+    }
     else if(func_cmp(cmd, "Quick")) {
         quick_look(hd);
     }
@@ -158,7 +162,7 @@ void enter(head * hd, f_head * f_hd, char * cmd) {
         else if (*mode == '2') *mode = 'c';
         else if (*mode == '0') *mode = 'a';
         else *mode = 0;
-        if (*mode == 0) printf("Write only '1', '2' or '0'.\n");
+        if (*mode == 0) printf("typo error: Unexpected input. Write only '1', '2' or '0'.\n");
         fflush(stdin);
     }
 
@@ -201,6 +205,7 @@ void enter(head * hd, f_head * f_hd, char * cmd) {
                 hd->last->next = student;
                 hd->last = student;
             }
+            free(temp);
             printf("Would you like to Enter Line by line once more? (Y/N): ");
             bgets(yn, 3, stdin);
         }
@@ -373,6 +378,89 @@ void show(head * hd, char * cmd) {
     }
 }
 
+void change(head * hd, f_head * f_hd, char * cmd) {
+    int no, num_len, i, line;
+    char * mode, * temp;
+    node * student;
+
+    mode = malloc(3);
+    if(mode == NULL) {
+        printf("fatal error: Unknown Memory Error while allocating memory in Change. (mode)\n");
+        exit(1);
+    }
+    *mode = 0;
+    if(*(cmd + 6) != '\0') {
+        cmd += 6;
+        for(;*cmd == ' '; cmd++);
+        if(*cmd < '9' && *cmd > '0') {
+            no = (int)strtol(cmd, NULL, 10);
+            if(no > 0) {
+                num_len = 0;
+                for (i = no; i; i /= 10, num_len++);
+                cmd += num_len;
+                if(*cmd != '\0') {
+                    for (; *cmd == ' '; cmd++);
+                    if (!strcmp(cmd, "csv")) *mode = 'c';
+                    else if (!strcmp(cmd, "lbl")) *mode = 'l';
+                    else printf("typo error: Mode %s not found\n", cmd);
+                }
+            }
+        }
+        else {
+            printf("typo error: First argument of Change function should be a number.\n"
+                   "Print number of a line to change (0 to cancel): ");
+            no = ibgets(stdin);
+        }
+    } else {
+        printf("Print No of element to change (0 to cancel): ");
+        no = ibgets(stdin);
+    }
+    if(no > 0 && no <= hd->cnt) {
+        while(*mode == 0) {
+            printf("How would you like to print data?\n1 - Line by line\n2 - CSV Format\n0 - Cancel\n");
+            line = ibgets( stdin);
+            if(line == 1) *mode = 'l';
+            else if(line == 2) *mode = 'c';
+            else if(line == 0) *mode = 'q';
+            else printf("typo error: Unexpected input. Write only '1', '2' or '0'.\n");
+        }
+         if(*mode != 'q') {
+            for (student = hd->first; student != NULL && student->no != no; student = student->next);
+            if (student == NULL) printf("error: Element with No %d not found\n", no);
+            else {
+                if (*mode == 'l') {
+                    temp = malloc(41);
+                    if(temp == NULL) {
+                        printf("fatal error: Unknown Memory Error while allocating memory in Change. (temp)\n");
+                        exit(1);
+                    }
+                    printf("Enter the name: ");
+                    bgets(temp, 32 - 1, stdin);
+                    student->name = just_copy(temp);
+                    printf("Enter the faculty: ");
+                    bgets(temp, 32 - 1, stdin);
+                    student->faculty = foreign_key(f_hd, temp);
+                    printf("Enter the Age: ");
+                    student->age = ibgets(stdin);
+                    printf("Enter the ID: ");
+                    student->id = ibgets(stdin);
+                    printf("Enter the Average Score: ");
+                    student->avg_score = fbgets(temp, stdin);
+                    printf("Enter the Completion Rate: ");
+                    student->completion_rate = fbgets(temp, stdin);
+                    for (i = 0; i < 3; i++) {
+                        printf("Enter the GIA Result #%d: ", i + 1);
+                        student->gia_results[i] = ibgets(stdin);
+                    }
+                    free(temp);
+                } else if (*mode == 'c') {
+
+                }
+            }
+        }
+    } else if (no > hd->cnt) printf("error: This No is out of bounds\n");
+}
+
 void csv_line_parser(head *hd, f_head* f_hd, char* line) {
     int j;
     node *db, *temp;
@@ -446,7 +534,8 @@ void delete(head * hd, char * cmd) {
     int no;
     node * student;
     if(*(cmd + 6) != '\0') {
-        cmd += 7;
+        cmd += 6;
+        for(;*cmd == ' '; cmd++);
         if(*cmd < '9' && *cmd > '0') no = (int)strtol(cmd, NULL, 10);
         else {
             printf("Argument of Delete function should be a number.\n"
@@ -628,14 +717,15 @@ void help(char * cmd) {
                "Enter <csv/lbl>                  - to fill Kartoteka from keyboard\n"
                "Import <file name>               - to fill Kartoteka from file\n"
                "Export <file name>               - to make file from Kartoteka data\n"
-               "Show <max amount>                - show up to positive max amount of lines\n"
-               "Change <N>                       - Change line #N\n" // Not Done
-               "Sort <column> <a/d>              - Sort column ascending/descending\n" // Not Done
-               "Filter <column> <(how)value>     - Get All lines with necessary value\n" // Not Done
+               "Show <max amount>                - to show up to positive max amount of lines\n"
+               "Change <N>                       - to change line #N\n" // Not Done
+               "Sort <column> <a/d>              - to sort column ascending/descending\n" // Not Done
+               "Filter <column> <(how)value>     - to get all lines with necessary value\n" // Not Done
                "Delete All                       - to delete all Kartoteka database\n"
-               "Delete <N>                       - Delete line #N\n" // Not Done
-               "Delete by <column> <(how)value>  - Delete lines with necessary value\n" // Not Done
+               "Delete <N>                       - to delete line #N\n"
+               "Delete by <column> <(how)value>  - to delete lines with necessary value\n" // Not Done
                "Quick                            - to quick look data in Kartoteka\n"
+               "Clear                            - to clear the screen\n"
                "Help <Command>                   - for documentation\n\n" // Unfinished
                "Use Help <Command> for specific Function documentation\n\n");
     else {
