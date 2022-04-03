@@ -33,47 +33,54 @@ typedef struct student_head {
     int cnt;
 } head;
 
-void csv_line_parser(head *hd, f_head* f_hd, char* line);
-char** split(char *line, char sep);
-char* bgets(char *st, int len, FILE *fp);
-int ibgets(FILE *fp);
-float fbgets(FILE *fp);
-f_node * foreign_key(f_head *f_hd, char* fac_name);
-void make_new_f(f_head * f_hd, char * node_name);
-void create(head * hd, f_head * f_hd);
-void UI(head * hd, f_head * f_hd);
-void quick_look(head * hd);
-boolean cmd_check(char * cmd, head * hd, f_head * f_hd);
+
+/** Called by User **/
 void enter(head * hd, f_head * f_hd, char* cmd);
 void import(head * hd, f_head * f_hd, char * cmd);
 void export(head * hd, char * cmd);
-boolean func_cmp(char * cmd, char * compare);
-void help(char * cmd);
-char* just_copy(const char* st);
+void show(head * hd, char * cmd);
+void change(head * hd, f_head * f_hd, char * cmd);
+void swap(head * hd, char * cmd);
+void sort(head * hd, char * cmd);
+void filter(head* hd, char * cmd);
 void delete_all(head * hd, f_head * f_hd);
 void delete(head * hd, char * cmd);
-int strcount(char* in, char* substring);
-void show(head * hd, char * cmd);
-void new_no(head * hd);
-void change(head * hd, f_head * f_hd, char * cmd);
 void delete_by(head * hd, char * cmd);
+void quick_look(head * hd);
+void help(char * cmd);
+
+/** Internal Functions **/
+void csv_line_parser_(head *hd, f_head* f_hd, char* line);
+f_node * foreign_key_(f_head *f_hd, char* fac_name);
+void make_new_f_(f_head * f_hd, char * node_name);
+void create_(head * hd, f_head * f_hd);
+void UI_(head * hd, f_head * f_hd);
+boolean cmd_check_(char * cmd, head * hd, f_head * f_hd);
+boolean func_cmp_(char * cmd, char * compare);
+char* just_copy_(const char* st);
+void new_no_(head * hd);
 void delete_node_(head * hd, node * student);
-void delete_str_internal(head * hd, char* (*field)(node*), char how, char * value);
-void delete_int_internal(head * hd, char column, char how, int value);
-void delete_float_internal(head * hd, char column, char how, float value);
-void filter(head* hd, char * cmd);
-void filter_int_internal(head * hd, char column, char how, int value);
-void filter_float_internal(head * hd, char column, char how, float value);
-void filter_str_internal(head * hd, char* (*field)(node*), char how, char * value);
-void sort(head * hd, char * cmd);
-void swap(head * hd, char * cmd);
-void swap_internal(node * temp0, node * temp1);
-void swap_cpy_internal(node * buff, node * temp1);
-void q_sort_internal(node * left, node * right, char mode, char ad);
-void str_q_sort_internal(node * left, node * right, char* (*field)(node*), char ad);
-char* get_name_internal(node * student);
-char* get_fac_name_internal(node * student);
-void output_internal(node * student);
+void delete_str_(head * hd, char* (*field)(node*), char how, char * value);
+void delete_int_(head * hd, char column, char how, int value);
+void delete_float_(head * hd, char column, char how, float value);
+void filter_int_(head * hd, char column, char how, int value);
+void filter_float_(head * hd, char column, char how, float value);
+void filter_str_(head * hd, char* (*field)(node*), char how, char * value);
+void swap_(node * temp0, node * temp1);
+void swap_cpy_(node * buff, node * temp1);
+void q_sort_(node * left, node * right, char mode, char ad);
+void str_q_sort_(node * left, node * right, char* (*field)(node*), char ad);
+char* get_name_(node * student);
+char* get_fac_name_(node * student);
+void output_(node * student);
+
+/** BFuncs **/
+char* bgets(char *st, int len, FILE *fp);
+int ibgets(FILE *fp);
+float fbgets(FILE *fp);
+char** split(char *line, char sep);
+int strcount(char* in, char* substring);
+
 
 int main() {
     f_head * f_hd;
@@ -93,13 +100,13 @@ int main() {
     /* Allocating Memory */
     f_hd = (f_head*)malloc(sizeof(f_head));
     hd = (head*)malloc(sizeof(head));
-    create(hd, f_hd);
+    create_(hd, f_hd);
     /* Launching User Interface */
-    UI(hd, f_hd);
+    UI_(hd, f_hd);
     return 0;
 }
 
-void UI(head * hd, f_head * f_hd) {
+void UI_(head * hd, f_head * f_hd) {
     char * cmd;
     boolean quit;
     quit = 0;
@@ -111,69 +118,69 @@ void UI(head * hd, f_head * f_hd) {
         printf(">>> ");
         bgets(cmd, COMMAND_LEN - 1, stdin);
         if (strcount(cmd, "&") == 0)
-            quit = cmd_check(cmd, hd, f_hd);
+            quit = cmd_check_(cmd, hd, f_hd);
 
     }
 }
 
-boolean cmd_check(char * cmd, head * hd, f_head * f_hd) {
+boolean cmd_check_(char * cmd, head * hd, f_head * f_hd) {
     boolean q;
     q = 0;
-    if(func_cmp(cmd, "Quit")) {
+    if(func_cmp_(cmd, "Quit")) {
         printf("Thank You for using Kartoteka\n");
         q = 1;
     }
-    else if(func_cmp(cmd, "Enter")) {
+    else if(func_cmp_(cmd, "Enter")) {
         clear
         enter(hd, f_hd, cmd);
         printf("Done.\n");
         clear
     }
-    else if(func_cmp(cmd, "Import")) {
+    else if(func_cmp_(cmd, "Import")) {
         import(hd, f_hd, cmd);
         printf("Done.\n");
     }
-    else if(func_cmp(cmd, "Export")) {
+    else if(func_cmp_(cmd, "Export")) {
         export(hd, cmd);
         printf("Done.\n");
     }
-    else if(func_cmp(cmd, "Delete All")) {
+    else if(func_cmp_(cmd, "Delete All")) {
         delete_all(hd, f_hd);
         printf("Done.\n");
     }
-    else if(func_cmp(cmd, "Delete By")) {
+    else if(func_cmp_(cmd, "Delete By")) {
         delete_by(hd, cmd);
         printf("Done.\n");
     }
-    else if(func_cmp(cmd, "Delete")) {
+    else if(func_cmp_(cmd, "Delete")) {
         delete(hd, cmd);
         printf("Done.\n");
     }
-    else if(func_cmp(cmd, "Show")) {
+    else if(func_cmp_(cmd, "Show")) {
         show(hd, cmd);
     }
-    else if(func_cmp(cmd, "Sort")) {
+    else if(func_cmp_(cmd, "Sort")) {
         sort(hd, cmd);
         printf("Done.\n");
     }
-    else if(func_cmp(cmd, "Change")) {
+    else if(func_cmp_(cmd, "Change")) {
         change(hd, f_hd, cmd);
         printf("Done.\n");
     }
-    else if(func_cmp(cmd, "Swap")) {
+    else if(func_cmp_(cmd, "Swap")) {
         swap(hd, cmd);
         printf("Done.\n");
     }
-    else if(func_cmp(cmd, "Filter")) {
+    else if(func_cmp_(cmd, "Filter")) {
         filter(hd, cmd);
     }
-    else if(func_cmp(cmd, "Quick")) {
+    else if(func_cmp_(cmd, "Quick")) {
         quick_look(hd);
     }
-    else if(func_cmp(cmd, "Help")) {
+    else if(func_cmp_(cmd, "Help")) {
         help(cmd);
     }
-    else if(func_cmp(cmd, "Clear")) clear
+    else if(func_cmp_(cmd, "Clear")) clear
     else {
         printf("typo error: Command not found: %s\n", cmd);
         if(cmd[0] > 'Z' || cmd[0] < 'A') printf("Note that all commands start with capital letter\n");
@@ -214,10 +221,10 @@ void enter(head * hd, f_head * f_hd, char * cmd) {
             if(student == NULL) {printf("fatal error: Unknown Memory Error while allocating memory in Enter. (student)\n"); exit(1);}
             printf("Enter the name: ");
             bgets(temp, 32 - 1, stdin);
-            student->name = just_copy(temp);
+            student->name = just_copy_(temp);
             printf("Enter the faculty: ");
             bgets(temp, 32 - 1, stdin);
-            student->faculty = foreign_key(f_hd, temp);
+            student->faculty = foreign_key_(f_hd, temp);
             printf("Enter the Age: ");
             student->age = ibgets(stdin);
             printf("Enter the ID: ");
@@ -260,7 +267,7 @@ void enter(head * hd, f_head * f_hd, char * cmd) {
                 printf("typo error: Wrong Amount of Members in CSV\n"
                        "Input Should something like 'one;two;3;4;5;6;7;8;9'\n"
                        "Type Stop to finish\n");
-            } else csv_line_parser(hd, f_hd, temp);
+            } else csv_line_parser_(hd, f_hd, temp);
 
             bgets(temp, 127, stdin);
         }
@@ -275,7 +282,7 @@ void import(head * hd, f_head * f_hd, char * cmd) {
 
     if(*(cmd+6) != '\0') {
         cmd += 7;
-        file_name = just_copy(cmd);
+        file_name = just_copy_(cmd);
     } else {
         printf("Type File Name to import from (Just hit Enter to cancel): ");
         bgets(file_name, 31, stdin);
@@ -296,7 +303,7 @@ void import(head * hd, f_head * f_hd, char * cmd) {
     if(!cancel) {
         line = malloc(128);
         while (bgets(line, 128, fp) != NULL) {
-            csv_line_parser(hd, f_hd, line);
+            csv_line_parser_(hd, f_hd, line);
         }
     }
 
@@ -323,7 +330,7 @@ void export(head * hd, char * cmd) {
 
         if (*(cmd + 6) != '\0') {
             cmd += 7;
-            file_name = just_copy(cmd);
+            file_name = just_copy_(cmd);
         } else {
             printf("Type File Name to export to (Just hit Enter to cancel): ");
             bgets(file_name, 31, stdin);
@@ -475,10 +482,10 @@ void change(head * hd, f_head * f_hd, char * cmd) {
                     }
                     printf("Enter the name: ");
                     bgets(temp, 32 - 1, stdin);
-                    student->name = just_copy(temp);
+                    student->name = just_copy_(temp);
                     printf("Enter the faculty: ");
                     bgets(temp, 32 - 1, stdin);
-                    student->faculty = foreign_key(f_hd, temp);
+                    student->faculty = foreign_key_(f_hd, temp);
                     printf("Enter the Age: ");
                     student->age = ibgets(stdin);
                     printf("Enter the ID: ");
@@ -506,7 +513,7 @@ void change(head * hd, f_head * f_hd, char * cmd) {
                             exit(1);
                         }
                         student->name = splitLine[0];
-                        student->faculty = foreign_key(f_hd, splitLine[1]);
+                        student->faculty = foreign_key_(f_hd, splitLine[1]);
                         student->age = (int) strtol(splitLine[2], NULL, 10);
                         student->id = (int) strtol(splitLine[3], NULL, 10);
                         student->avg_score = (float)atof(splitLine[4]);
@@ -520,7 +527,7 @@ void change(head * hd, f_head * f_hd, char * cmd) {
     } else if (no > hd->cnt) printf("error: This No is out of bounds\n");
 }
 
-void csv_line_parser(head *hd, f_head* f_hd, char* line) {
+void csv_line_parser_(head *hd, f_head* f_hd, char* line) {
     int j;
     node *db, *temp;
     char **splitLine;
@@ -536,7 +543,7 @@ void csv_line_parser(head *hd, f_head* f_hd, char* line) {
     }
 
     db->name = splitLine[0];
-    db->faculty = foreign_key(f_hd, splitLine[1]);
+    db->faculty = foreign_key_(f_hd, splitLine[1]);
     db->age = (int)strtol(splitLine[2], NULL, 10);
     db->id = (int)strtol(splitLine[3], NULL, 10);
     db->avg_score = (float)atof(splitLine[4]);
@@ -624,7 +631,7 @@ void delete(head * hd, char * cmd) {
                 free(student);
             }
             hd->cnt--;
-            new_no(hd);
+            new_no_(hd);
         }
     }
     else if (no > hd->cnt) printf("error: This No is out of bounds\n");
@@ -640,25 +647,25 @@ void delete_by(head* hd, char * cmd) {
     column = -3;
     if(*(cmd+9) != '\0') {
         for(cmd+=9; *cmd == ' '; cmd++);
-        if(func_cmp(cmd, "Name")) { column = -2; cmd += 4;}
-        else if(func_cmp(cmd, "Faculty")) { column = -1; cmd += 7;}
-        else if(func_cmp(cmd, "No")) {column = 0; cmd += 2;}
-        else if(func_cmp(cmd, "Age")) { column = 1; cmd += 3;}
-        else if(func_cmp(cmd, "ID")) { column = 2; cmd += 2;}
-        else if(func_cmp(cmd, "Score")) { column = 3; cmd += 5;}
-        else if(func_cmp(cmd, "CR")) { column = 4; cmd += 2;}
-        else if(func_cmp(cmd, "GIA 1")) { column = 5; cmd += 5;}
-        else if(func_cmp(cmd, "GIA 2")) { column = 6; cmd += 5;}
-        else if(func_cmp(cmd, "GIA 3")) { column = 7; cmd += 5;}
+        if(func_cmp_(cmd, "Name")) { column = -2; cmd += 4;}
+        else if(func_cmp_(cmd, "Faculty")) { column = -1; cmd += 7;}
+        else if(func_cmp_(cmd, "No")) { column = 0; cmd += 2;}
+        else if(func_cmp_(cmd, "Age")) { column = 1; cmd += 3;}
+        else if(func_cmp_(cmd, "ID")) { column = 2; cmd += 2;}
+        else if(func_cmp_(cmd, "Score")) { column = 3; cmd += 5;}
+        else if(func_cmp_(cmd, "CR")) { column = 4; cmd += 2;}
+        else if(func_cmp_(cmd, "GIA 1")) { column = 5; cmd += 5;}
+        else if(func_cmp_(cmd, "GIA 2")) { column = 6; cmd += 5;}
+        else if(func_cmp_(cmd, "GIA 3")) { column = 7; cmd += 5;}
         else printf("typo error: Column not found.\n");
         if(*cmd != '\0' && column != -3) {
             for(;*cmd == ' '; cmd++);
-            if(func_cmp(cmd, "==")) {how = 4; cmd+=2;}
-            else if(func_cmp(cmd, "=")) {how = 1; cmd++;}
-            else if(func_cmp(cmd, ">=")) {how = 3; cmd+=2;}
-            else if(func_cmp(cmd, ">")) {how = 2; cmd++;}
-            else if(func_cmp(cmd, "<=")) {how = -2 ; cmd+=2;}
-            else if(func_cmp(cmd, "<")) {how = -1; cmd++;}
+            if(func_cmp_(cmd, "==")) { how = 4; cmd+=2;}
+            else if(func_cmp_(cmd, "=")) { how = 1; cmd++;}
+            else if(func_cmp_(cmd, ">=")) { how = 3; cmd+=2;}
+            else if(func_cmp_(cmd, ">")) { how = 2; cmd++;}
+            else if(func_cmp_(cmd, "<=")) { how = -2 ; cmd+=2;}
+            else if(func_cmp_(cmd, "<")) { how = -1; cmd++;}
             if(*cmd != '\0' && how != 0) {
                 for(;*cmd == ' '; cmd++);
                 if(column < 0) {
@@ -667,20 +674,20 @@ void delete_by(head* hd, char * cmd) {
                     if(how == 1 || how == 4)
                     {
                         if(column == -1)
-                            delete_str_internal(hd, get_fac_name_internal, how, line_value);
+                            delete_str_(hd, get_fac_name_, how, line_value);
                         if(column == -2)
-                            delete_str_internal(hd, get_name_internal, how, line_value);
+                            delete_str_(hd, get_name_, how, line_value);
                         done = 1;
                     }
                 } else if (column == 3 || column == 4) {
                     if(how == 4) how = 1;
                     float_value = (float)atof(cmd);
-                    delete_float_internal(hd, column, how, float_value);
+                    delete_float_(hd, column, how, float_value);
                     done = 1;
                 } else {
                     if(how == 4) how = 1;
                     int_value = (int)strtol(cmd, NULL, 10);
-                    delete_int_internal(hd, column, how, int_value);
+                    delete_int_(hd, column, how, int_value);
                     done = 1;
                 }
             }
@@ -733,20 +740,20 @@ void delete_by(head* hd, char * cmd) {
                 printf("Enter the Value: ");
                 bgets(line_value, 31, stdin);
                 if (column == -1)
-                    delete_str_internal(hd, get_fac_name_internal, how, line_value);
+                    delete_str_(hd, get_fac_name_, how, line_value);
                 if (column == -2)
-                    delete_str_internal(hd, get_name_internal, how, line_value);
+                    delete_str_(hd, get_name_, how, line_value);
             }
         } else if (column == 3 || column == 4) {
             printf("Enter the Value: ");
             if (how == 4) how = 1;
             float_value = fbgets(stdin);
-            delete_float_internal(hd, column, how, float_value);
+            delete_float_(hd, column, how, float_value);
         } else if (column != -4) {
             printf("Enter the Value: ");
             if (how == 4) how = 1;
             int_value = ibgets(stdin);
-            delete_int_internal(hd, column, how, int_value);
+            delete_int_(hd, column, how, int_value);
         }
     }
 }
@@ -770,7 +777,7 @@ void delete_node_(head * hd, node * student) {
     hd->cnt--;
 }
 
-void delete_str_internal(head * hd, char* (*field)(node*), char how, char * value) {
+void delete_str_(head * hd, char* (*field)(node*), char how, char * value) {
     node * student;
     boolean printed;
     printed = 0;
@@ -783,14 +790,14 @@ void delete_str_internal(head * hd, char* (*field)(node*), char how, char * valu
     }
     else if(how == 1) {
         for (student = hd->first; student != NULL; student = student->next) {
-            if (func_cmp(field(student), value)) {
+            if (func_cmp_(field(student), value)) {
                 delete_node_(hd, student);
             }
         }
     }
 }
 
-void delete_int_internal(head * hd, char column, char how, int value) {
+void delete_int_(head * hd, char column, char how, int value) {
     node * student;
     if (how == 1) {
         for (student = hd->first; student != NULL; student = student->next) {
@@ -827,7 +834,7 @@ void delete_int_internal(head * hd, char column, char how, int value) {
     }
 }
 
-void delete_float_internal(head * hd, char column, char how, float value) {
+void delete_float_(head * hd, char column, char how, float value) {
     node * student;
     boolean printed;
     printed = 0;
@@ -876,25 +883,25 @@ void filter(head* hd, char * cmd) {
     column = -3;
     if(*(cmd+6) != '\0') {
         for(cmd+=6; *cmd == ' '; cmd++);
-        if(func_cmp(cmd, "Name")) { column = -2; cmd += 4;}
-        else if(func_cmp(cmd, "Faculty")) { column = -1; cmd += 7;}
-        else if(func_cmp(cmd, "No")) {column = 0; cmd += 2;}
-        else if(func_cmp(cmd, "Age")) { column = 1; cmd += 3;}
-        else if(func_cmp(cmd, "ID")) { column = 2; cmd += 2;}
-        else if(func_cmp(cmd, "Score")) { column = 3; cmd += 5;}
-        else if(func_cmp(cmd, "CR")) { column = 4; cmd += 2;}
-        else if(func_cmp(cmd, "GIA 1")) { column = 5; cmd += 5;}
-        else if(func_cmp(cmd, "GIA 2")) { column = 6; cmd += 5;}
-        else if(func_cmp(cmd, "GIA 3")) { column = 7; cmd += 5;}
+        if(func_cmp_(cmd, "Name")) { column = -2; cmd += 4;}
+        else if(func_cmp_(cmd, "Faculty")) { column = -1; cmd += 7;}
+        else if(func_cmp_(cmd, "No")) { column = 0; cmd += 2;}
+        else if(func_cmp_(cmd, "Age")) { column = 1; cmd += 3;}
+        else if(func_cmp_(cmd, "ID")) { column = 2; cmd += 2;}
+        else if(func_cmp_(cmd, "Score")) { column = 3; cmd += 5;}
+        else if(func_cmp_(cmd, "CR")) { column = 4; cmd += 2;}
+        else if(func_cmp_(cmd, "GIA 1")) { column = 5; cmd += 5;}
+        else if(func_cmp_(cmd, "GIA 2")) { column = 6; cmd += 5;}
+        else if(func_cmp_(cmd, "GIA 3")) { column = 7; cmd += 5;}
         else printf("typo error: Column not found.\n");
         if(*cmd != '\0' && column != -3) {
             for(;*cmd == ' '; cmd++);
-            if(func_cmp(cmd, "==")) {how = 4; cmd+=2;}
-            else if(func_cmp(cmd, "=")) {how = 1; cmd++;}
-            else if(func_cmp(cmd, ">=")) {how = 3; cmd+=2;}
-            else if(func_cmp(cmd, ">")) {how = 2; cmd++;}
-            else if(func_cmp(cmd, "<=")) {how = -2 ; cmd+=2;}
-            else if(func_cmp(cmd, "<")) {how = -1; cmd++;}
+            if(func_cmp_(cmd, "==")) { how = 4; cmd+=2;}
+            else if(func_cmp_(cmd, "=")) { how = 1; cmd++;}
+            else if(func_cmp_(cmd, ">=")) { how = 3; cmd+=2;}
+            else if(func_cmp_(cmd, ">")) { how = 2; cmd++;}
+            else if(func_cmp_(cmd, "<=")) { how = -2 ; cmd+=2;}
+            else if(func_cmp_(cmd, "<")) { how = -1; cmd++;}
             if(*cmd != '\0' && how != 0) {
                 for(;*cmd == ' '; cmd++);
                 if(column < 0) {
@@ -902,20 +909,20 @@ void filter(head* hd, char * cmd) {
                     line_value = cmd;
                     if(how == 1 || how == 4) {
                         if(column == -1)
-                            filter_str_internal(hd, get_fac_name_internal, how, line_value);
+                            filter_str_(hd, get_fac_name_, how, line_value);
                         if(column == -2)
-                            filter_str_internal(hd, get_name_internal, how, line_value);
+                            filter_str_(hd, get_name_, how, line_value);
                         done = 1;
                     }
                 } else if (column == 3 || column == 4) {
                     if(how == 4) how = 1;
                     float_value = (float)atof(cmd);
-                    filter_float_internal(hd, column, how, float_value);
+                    filter_float_(hd, column, how, float_value);
                     done = 1;
                 } else {
                     if(how == 4) how = 1;
                     int_value = (int)strtol(cmd, NULL, 10);
-                    filter_int_internal(hd, column, how, int_value);
+                    filter_int_(hd, column, how, int_value);
                     done = 1;
                 }
             }
@@ -968,24 +975,24 @@ void filter(head* hd, char * cmd) {
                 printf("Enter the Value: ");
                 bgets(line_value, 31, stdin);
                 if (column == -1)
-                    filter_str_internal(hd, get_fac_name_internal, how, line_value);
+                    filter_str_(hd, get_fac_name_, how, line_value);
                 if (column == -2)
-                    filter_str_internal(hd, get_name_internal, how, line_value);
+                    filter_str_(hd, get_name_, how, line_value);
             }
         } else if (column == 3 || column == 4) {
             printf("Enter the Value: ");
             if (how == 4) how = 1;
             float_value = fbgets(stdin);
-            filter_float_internal(hd, column, how, float_value);
+            filter_float_(hd, column, how, float_value);
         } else if (column != -4) {
             printf("Enter the Value: ");
             if (how == 4) how = 1;
             int_value = ibgets(stdin);
-            filter_int_internal(hd, column, how, int_value);
+            filter_int_(hd, column, how, int_value);
         }
     }
 }
-void filter_str_internal(head * hd, char* (*field)(node*), char how, char * value) {
+void filter_str_(head * hd, char* (*field)(node*), char how, char * value) {
     node * student;
     boolean printed;
     printed = 0;
@@ -995,18 +1002,18 @@ void filter_str_internal(head * hd, char* (*field)(node*), char how, char * valu
                 if (!printed)
                     printf("| %-2s | %-2s | %-23s | %-7s | %-3s | %3s | %2s | %-15s |\n", "No", "ID", "Name", "Faculty",
                            "Age", "Score", "C.R.", "GIA Results");
-                output_internal(student);
+                output_(student);
                 printed = 1;
             }
         }
     }
     else if(how == 1) {
         for (student = hd->first; student != NULL; student = student->next) {
-            if (func_cmp(field(student), value)) {
+            if (func_cmp_(field(student), value)) {
                 if (!printed)
                     printf("| %-2s | %-2s | %-23s | %-7s | %-3s | %3s | %2s | %-15s |\n", "No", "ID", "Name", "Faculty",
                            "Age", "Score", "C.R.", "GIA Results");
-                output_internal(student);
+                output_(student);
                 printed = 1;
             }
         }
@@ -1014,7 +1021,7 @@ void filter_str_internal(head * hd, char* (*field)(node*), char how, char * valu
     if(!printed) printf("Nothing Found.\n");
 }
 
-void filter_int_internal(head * hd, char column, char how, int value) {
+void filter_int_(head * hd, char column, char how, int value) {
     node * student;
     boolean printed;
     printed = 0;
@@ -1022,7 +1029,7 @@ void filter_int_internal(head * hd, char column, char how, int value) {
         for (student = hd->first; student != NULL; student = student->next) {
             if (*(&student->no + column) == value) {
                 if(!printed) printf("| %-2s | %-2s | %-23s | %-7s | %-3s | %3s | %2s | %-15s |\n", "No", "ID", "Name", "Faculty", "Age", "Score", "C.R.","GIA Results");
-                output_internal(student);
+                output_(student);
                 printed = 1;
             }
         }
@@ -1031,7 +1038,7 @@ void filter_int_internal(head * hd, char column, char how, int value) {
         for (student = hd->first; student != NULL; student = student->next) {
             if (*(&student->no + column) > value) {
                 if(!printed) printf("| %-2s | %-2s | %-23s | %-7s | %-3s | %3s | %2s | %-15s |\n", "No", "ID", "Name", "Faculty", "Age", "Score", "C.R.","GIA Results");
-                output_internal(student);
+                output_(student);
                 printed = 1;
             }
         }
@@ -1040,7 +1047,7 @@ void filter_int_internal(head * hd, char column, char how, int value) {
         for (student = hd->first; student != NULL; student = student->next) {
             if (*(&student->no + column) >= value) {
                 if(!printed) printf("| %-2s | %-2s | %-23s | %-7s | %-3s | %3s | %2s | %-15s |\n", "No", "ID", "Name", "Faculty", "Age", "Score", "C.R.","GIA Results");
-                output_internal(student);
+                output_(student);
                 printed = 1;
             }
         }
@@ -1048,7 +1055,7 @@ void filter_int_internal(head * hd, char column, char how, int value) {
         for (student = hd->first; student != NULL; student = student->next) {
             if (*(&student->no + column) <= value) {
                 if(!printed) printf("| %-2s | %-2s | %-23s | %-7s | %-3s | %3s | %2s | %-15s |\n", "No", "ID", "Name", "Faculty", "Age", "Score", "C.R.","GIA Results");
-                output_internal(student);
+                output_(student);
                 printed = 1;
             }
         }
@@ -1056,7 +1063,7 @@ void filter_int_internal(head * hd, char column, char how, int value) {
         for (student = hd->first; student != NULL; student = student->next) {
             if (*(&student->no + column) < value) {
                 if(!printed) printf("| %-2s | %-2s | %-23s | %-7s | %-3s | %3s | %2s | %-15s |\n", "No", "ID", "Name", "Faculty", "Age", "Score", "C.R.","GIA Results");
-                output_internal(student);
+                output_(student);
                 printed = 1;
             }
         }
@@ -1064,7 +1071,7 @@ void filter_int_internal(head * hd, char column, char how, int value) {
     if(!printed) printf("Nothing Found.\n");
 }
 
-void filter_float_internal(head * hd, char column, char how, float value) {
+void filter_float_(head * hd, char column, char how, float value) {
     node * student;
     boolean printed;
     printed = 0;
@@ -1072,7 +1079,7 @@ void filter_float_internal(head * hd, char column, char how, float value) {
         for (student = hd->first; student != NULL; student = student->next) {
             if (*(&student->avg_score + column - 3) == value) {
                 if(!printed) printf("| %-2s | %-2s | %-23s | %-7s | %-3s | %3s | %2s | %-15s |\n", "No", "ID", "Name", "Faculty", "Age", "Score", "C.R.","GIA Results");
-                output_internal(student);
+                output_(student);
                 printed = 1;
             }
         }
@@ -1081,7 +1088,7 @@ void filter_float_internal(head * hd, char column, char how, float value) {
         for (student = hd->first; student != NULL; student = student->next) {
             if (*(&student->avg_score + column - 3) > value) {
                 if(!printed) printf("| %-2s | %-2s | %-23s | %-7s | %-3s | %3s | %2s | %-15s |\n", "No", "ID", "Name", "Faculty", "Age", "Score", "C.R.","GIA Results");
-                output_internal(student);
+                output_(student);
                 printed = 1;
             }
         }
@@ -1090,7 +1097,7 @@ void filter_float_internal(head * hd, char column, char how, float value) {
         for (student = hd->first; student != NULL; student = student->next) {
             if (*(&student->avg_score + column - 3) >= value) {
                 if(!printed) printf("| %-2s | %-2s | %-23s | %-7s | %-3s | %3s | %2s | %-15s |\n", "No", "ID", "Name", "Faculty", "Age", "Score", "C.R.","GIA Results");
-                output_internal(student);
+                output_(student);
                 printed = 1;
             }
         }
@@ -1098,7 +1105,7 @@ void filter_float_internal(head * hd, char column, char how, float value) {
         for (student = hd->first; student != NULL; student = student->next) {
             if (*(&student->avg_score + column - 3) <= value) {
                 if(!printed) printf("| %-2s | %-2s | %-23s | %-7s | %-3s | %3s | %2s | %-15s |\n", "No", "ID", "Name", "Faculty", "Age", "Score", "C.R.","GIA Results");
-                output_internal(student);
+                output_(student);
                 printed = 1;
             }
         }
@@ -1106,7 +1113,7 @@ void filter_float_internal(head * hd, char column, char how, float value) {
         for (student = hd->first; student != NULL; student = student->next) {
             if (*(&student->avg_score + column - 3) < value) {
                 if(!printed) printf("| %-2s | %-2s | %-23s | %-7s | %-3s | %3s | %2s | %-15s |\n", "No", "ID", "Name", "Faculty", "Age", "Score", "C.R.","GIA Results");
-                output_internal(student);
+                output_(student);
                 printed = 1;
             }
         }
@@ -1114,7 +1121,7 @@ void filter_float_internal(head * hd, char column, char how, float value) {
     if(!printed) printf("Nothing Found.\n");
 }
 
-void output_internal(node * student) {
+void output_(node * student) {
     printf("| %-2d | %-2d | %-23s | %-7s | %-3d | %.3f | %.2f | %-3d | %-3d | %-3d |\n",
            student->no, student->id, student->name,
            student->faculty->name, student->age,
@@ -1131,15 +1138,15 @@ void sort(head * hd, char * cmd) {
     if(*(cmd+4) != '\0') {
         cmd += 4;
         while(*cmd == ' ') cmd++;
-        if(func_cmp(cmd, "Name")) { mode = -2; cmd += 4;}
-        else if(func_cmp(cmd, "Faculty")) { mode = -1; cmd += 7;}
-        else if(func_cmp(cmd, "Age")) { mode = 1; cmd += 3;}
-        else if(func_cmp(cmd, "ID")) { mode = 2; cmd += 2;}
-        else if(func_cmp(cmd, "Score")) { mode = 3; cmd += 5;}
-        else if(func_cmp(cmd, "CR")) { mode = 4; cmd += 2;}
-        else if(func_cmp(cmd, "GIA 1")) { mode = 5; cmd += 5;}
-        else if(func_cmp(cmd, "GIA 2")) { mode = 6; cmd += 5;}
-        else if(func_cmp(cmd, "GIA 3")) { mode = 7; cmd += 5;}
+        if(func_cmp_(cmd, "Name")) { mode = -2; cmd += 4;}
+        else if(func_cmp_(cmd, "Faculty")) { mode = -1; cmd += 7;}
+        else if(func_cmp_(cmd, "Age")) { mode = 1; cmd += 3;}
+        else if(func_cmp_(cmd, "ID")) { mode = 2; cmd += 2;}
+        else if(func_cmp_(cmd, "Score")) { mode = 3; cmd += 5;}
+        else if(func_cmp_(cmd, "CR")) { mode = 4; cmd += 2;}
+        else if(func_cmp_(cmd, "GIA 1")) { mode = 5; cmd += 5;}
+        else if(func_cmp_(cmd, "GIA 2")) { mode = 6; cmd += 5;}
+        else if(func_cmp_(cmd, "GIA 3")) { mode = 7; cmd += 5;}
         else printf("typo error: Column not found.\n");
         if (*cmd != '\0' && mode != 0) {
             while (*cmd == ' ') cmd++;
@@ -1172,22 +1179,22 @@ void sort(head * hd, char * cmd) {
     }
     if(ad != -3 && mode != -3) {
         if (mode > 0 && mode <= 7)
-            q_sort_internal(hd->first, hd->last, mode, ad);
+            q_sort_(hd->first, hd->last, mode, ad);
         else if (mode == -1)
-            str_q_sort_internal(hd->first, hd->last, get_fac_name_internal, ad);
+            str_q_sort_(hd->first, hd->last, get_fac_name_, ad);
         else if (mode == -2)
-            str_q_sort_internal(hd->first, hd->last, get_name_internal, ad);
+            str_q_sort_(hd->first, hd->last, get_name_, ad);
         else
             printf("unknown error: Unknown operation mode of Sort (mode > 7 or mode < -3)\n");
     }
 }
 
-void q_sort_internal(node * left, node * right, char mode, char ad) {
+void q_sort_(node * left, node * right, char mode, char ad) {
     node * last, * current;
     if (left != right) {
         if (left->next == right) {
             if ((*(&left->no + mode))*ad > (*(&right->no + mode))*ad)
-                swap_internal(left, right);
+                swap_(left, right);
         } else {
             last = left;
             current = left;
@@ -1195,26 +1202,26 @@ void q_sort_internal(node * left, node * right, char mode, char ad) {
                 current = current->next;
                 if ((*(&current->no + mode))*ad < (*(&left->no + mode))*ad) {
                     last = last->next;
-                    swap_internal(last, current);
+                    swap_(last, current);
                 }
             } while (current != right);
-            swap_internal(left, last);
-            q_sort_internal(left, last, mode, ad);
+            swap_(left, last);
+            q_sort_(left, last, mode, ad);
             if (last != right)
-                q_sort_internal(last->next, right, mode, ad);
+                q_sort_(last->next, right, mode, ad);
         }
     }
 }
 
-char* get_name_internal(node * student) { return student->name; }
-char* get_fac_name_internal(node * student) { return student->faculty->name; }
+char* get_name_(node * student) { return student->name; }
+char* get_fac_name_(node * student) { return student->faculty->name; }
 
-void str_q_sort_internal(node * left, node * right, char* (*field)(node*), char ad) {
+void str_q_sort_(node * left, node * right, char* (*field)(node*), char ad) {
     node * last, * current;
     if (left != right) {
         if (left->next == right) {
             if((strcmp(field(left), field(right)) > 0 && ad == 1) || (strcmp(field(left), field(right)) < 0 && ad == -1))
-                swap_internal(left, right);
+                swap_(left, right);
         } else {
             last = left;
             current = left;
@@ -1222,31 +1229,31 @@ void str_q_sort_internal(node * left, node * right, char* (*field)(node*), char 
                 current = current->next;
                 if((strcmp(field(current), field(left)) < 0 && ad == 1) || (strcmp(field(current), field(left)) > 0 && ad == -1)) {
                     last = last->next;
-                    swap_internal(last, current);
+                    swap_(last, current);
                 }
             } while (current != right);
-            swap_internal(left, last);
-            str_q_sort_internal(left, last, field, ad);
+            swap_(left, last);
+            str_q_sort_(left, last, field, ad);
             if (last != right)
-                str_q_sort_internal(last->next, right, field, ad);
+                str_q_sort_(last->next, right, field, ad);
         }
     }
 }
 
-void swap_internal(node * temp0, node * temp1) {
+void swap_(node * temp0, node * temp1) {
     node * buff;
 
     buff = (node*)malloc(sizeof(node));
 
-    swap_cpy_internal(buff, temp1);
-    swap_cpy_internal(temp1, temp0);
-    swap_cpy_internal(temp0, buff);
+    swap_cpy_(buff, temp1);
+    swap_cpy_(temp1, temp0);
+    swap_cpy_(temp0, buff);
 
     free(buff);
 }
 
-void swap_cpy_internal(node * buff, node * temp1) {
-    buff->name = just_copy(temp1->name);
+void swap_cpy_(node * buff, node * temp1) {
+    buff->name = just_copy_(temp1->name);
     buff->faculty = temp1->faculty;
     buff->age = temp1->age;
     buff->id = temp1->id;
@@ -1304,11 +1311,11 @@ void swap(head * hd, char * cmd) {
     } else {
         for(student2 = hd->first; student2 != NULL && student2->no != no2; student2 = student2->next);
         if (student2 == NULL) printf("error: Element with No %d not found\n", no2);
-        else swap_internal(student1, student2);
+        else swap_(student1, student2);
     }
 }
 
-f_node * foreign_key(f_head *f_hd, char* fac_name) {
+f_node * foreign_key_(f_head *f_hd, char* fac_name) {
     f_node * node, * res;
     boolean found;
     found = 0;
@@ -1319,16 +1326,16 @@ f_node * foreign_key(f_head *f_hd, char* fac_name) {
         }
     }
     if(!found) {
-        make_new_f(f_hd, fac_name);
+        make_new_f_(f_hd, fac_name);
         res = f_hd->last;
     }
     return res;
 }
 
-void make_new_f(f_head * f_hd, char * node_name) {
+void make_new_f_(f_head * f_hd, char * node_name) {
     f_node * node;
     node = (f_node*)malloc(sizeof(f_node));
-    node->name = just_copy(node_name);
+    node->name = just_copy_(node_name);
     node->next = NULL;
     if(!f_hd->cnt) {
         node->prev = NULL;
@@ -1399,7 +1406,7 @@ float fbgets(FILE *fp) {
     return (float)atof(bgets(st, 31, fp));
 }
 
-boolean func_cmp(char * cmd, char * compare) {
+boolean func_cmp_(char * cmd, char * compare) {
     char * temp1, * temp2;
     boolean res;
     res = 1;
@@ -1424,7 +1431,7 @@ int strcount(char* in, char* substring) {
     return count;
 }
 
-void create(head * hd, f_head * f_hd) {
+void create_(head * hd, f_head * f_hd) {
     hd->cnt = 0;
     hd->first = NULL;
     hd->last = NULL;
@@ -1433,7 +1440,7 @@ void create(head * hd, f_head * f_hd) {
     f_hd->last = NULL;
 }
 
-char* just_copy(const char* st) {
+char* just_copy_(const char* st) {
     char * res;
     unsigned long len, i;
     len = strlen(st);
@@ -1443,7 +1450,7 @@ char* just_copy(const char* st) {
     return res;
 }
 
-void new_no(head * hd) {
+void new_no_(head * hd) {
     node * student;
     int i;
     for(i = 0, student = hd->first; student != NULL; student->no = ++i, student = student->next);
@@ -1457,16 +1464,16 @@ void help(char * cmd) {
                "Import <file name>               - to fill Kartoteka from file\n"
                "Export <file name>               - to make file from Kartoteka data\n"
                "Show <max amount>                - to show up to positive max amount of lines\n"
-               "Change <N>                       - to change line #N\n"
-               "Swap <N1> <N2>                   - to swap lines with no N1 and N2\n"
-               "Sort <column> <a/d>              - to sort column ascending/descending\n"
-               "Filter <column> <(how)value>     - to show all lines with necessary value\n"
+               "Change <No>                      - to change line #N\n"
+               "Swap <No1> <No2>                 - to swap lines with no N1 and N2\n"
+               "Sort <Column> <a/d>              - to sort column ascending/descending\n"
+               "Filter <Column> <(how)value>     - to show all lines with necessary value\n"
                "Delete All                       - to delete all Kartoteka database\n"
-               "Delete <N>                       - to delete line #N\n"
-               "Delete By <column> <(how)value>  - to delete lines with necessary value\n"
+               "Delete <No>                      - to delete line #N\n"
+               "Delete By <Column> <(how)value>  - to delete lines with necessary value\n"
                "Quick                            - to quick look data in Kartoteka\n"
                "Clear                            - to clear the screen\n"
-               "Help <Command>                   - for documentation\n\n" // Unfinished
+               "Help <Command>                   - for documentation\n\n"
                "Use Help <Command> for specific Function documentation\n\n");
     else {
         cmd += 4;
@@ -1474,7 +1481,7 @@ void help(char * cmd) {
         if (!strcmp(cmd, "Quit"))
             printf("Quit function is used to terminate Kartoteka\n"
                    "Just type 'Quit' if you had enough.\n\n");
-        else if (func_cmp(cmd, "Enter"))
+        else if (func_cmp_(cmd, "Enter"))
             printf("Enter function is used to fill Kartoteka database from keyboard.\n"
                    "You can fill with 'Line by Line' mode or 'CSV' mode\n"
                    "Command 'Enter' will lead to menu where you can choose between them\n"
@@ -1482,21 +1489,21 @@ void help(char * cmd) {
                    "\n"
                    "Usage Example:\n"
                    "Enter csv\none;two;3;4;5;6;7;8;9\n\n");
-        else if(func_cmp(cmd, "Show"))
+        else if(func_cmp_(cmd, "Show"))
             printf("Show function is used to print all the data from Kartoteka\n"
                    "By Default prints all the lines\n"
                    "You can also give an argument of max amount of lines to print.\n"
                    "\n"
                    "Usage Example:\n"
                    "Show 5\n\n");
-        else if(func_cmp(cmd, "Import"))
+        else if(func_cmp_(cmd, "Import"))
             printf("Import function is used to get Kartoteka lines from csv line\n"
                    "You can type Import and then choose a file\n"
                    "Or just type Import <name of file>\n"
                    "\n"
                    "Usage Example:\n"
                    "Import example.txt\n\n");
-        else if(func_cmp(cmd, "Export"))
+        else if(func_cmp_(cmd, "Export"))
             printf("Export function is used to write Kartoteka lines in CSV format into a file.\n"
                    "This file can be later imported in Kartoteka\n"
                    "You can type Export and then choose a file\n"
@@ -1506,7 +1513,7 @@ void help(char * cmd) {
                    "\n"
                    "Usage Example:\n"
                    "Export example.txt\n\n");
-        else if(func_cmp(cmd, "Change"))
+        else if(func_cmp_(cmd, "Change"))
             printf("Change function is used to change line with a specific No from keyboard\n"
                    "You can type a new line in CSV format or in Line by Line mode.\n"
                    "You can type Change and then pick all the parameters\n"
@@ -1514,22 +1521,59 @@ void help(char * cmd) {
                    "\n"
                    "Usage Example:\n"
                    "Change 1 csv\n\n");
-        else if(func_cmp(cmd, "Delete All"))
+        else if(func_cmp_(cmd, "Delete All"))
             printf("Delete All function is used to delete all Kartoteka database\n"
                    "All the lines and faculties will be deleted.\n\n");
-        else if(func_cmp(cmd, "Delete"))
+        else if(func_cmp_(cmd, "Delete"))
             printf("Delete function is used to delete line with a specific No\n"
                    "You can type Delete and the pick a No\n"
                    "Or just type Delete <No>\n"
                    "\n"
                    "Usage Example:\n"
                    "Delete 2\n\n");
-        else if(func_cmp(cmd, "Quick"))
+        else if(func_cmp_(cmd, "Quick"))
             printf("Quick function is used to quickly Show 5.\n"
                    "Use it if you need to check if the Kartoteka has changed\n\n");
-        else if(func_cmp(cmd, "Clear"))
+        else if(func_cmp_(cmd, "Swap"))
+            printf("Swap function is used to swap to lines in Kartoteka database\n"
+                   "You can type Swap and pick No's\n"
+                   "Or just type Swap <No1> <No2>\n"
+                   "\n"
+                   "Usage Example:\n"
+                   "Swap 1 2\n\n");
+        else if(func_cmp_(cmd, "Sort"))
+            printf("Sort function is used to sort Kartoteka database by any column\n"
+                   "You can type Sort and pick a column and mode (ascending/descending)\n"
+                   "Or just type Sort <Column> <a/d>\n"
+                   "\n"
+                   "Usage Example:\n"
+                   "Sort ID a\n\n");
+        else if(func_cmp_(cmd, "Filter"))
+            printf("Filter function is used to show lines that meet the requirements\n"
+                   "It doesn't change database\n"
+                   "You can type Filter and choose column and requirements\n"
+                   "Or just type Filter <Column> <Requirements>\n"
+                   "\n"
+                   "Note: In strings: '==' finds exact match.\n"
+                   "                  '=' finds if it is first substring.\n"
+                   "      In numeric '=' and '==' are the same.\n"
+                   "\n"
+                   "Usage Example:\n"
+                   "Filter ID >= 5\n\n");
+        else if(func_cmp_(cmd, "Delete By"))
+            printf("Delete By function is used to delete all the lines that meet the requirements\n"
+                   "You can type Delete By and choose Column and Requirements\n"
+                   "Or Just type Delete By <Column> <Requirements>\n"
+                   "\n"
+                   "Note: In strings: '==' finds exact match.\n"
+                   "                  '=' finds if it is first substring.\n"
+                   "      In numeric '=' and '==' are the same.\n"
+                   "\n"
+                   "Usage Example:\n"
+                   "Delete By Age < 18\n\n");
+        else if(func_cmp_(cmd, "Clear"))
             printf("Clear function is used to clear your terminal.\n\n");
-        else if(func_cmp(cmd, "Help"))
+        else if(func_cmp_(cmd, "Help"))
             printf("Help function is used to keep documentation\n"
                    "And access it from the program\n"
                    "With no arguments shows all the available Kartoteka commands\n"
@@ -1537,5 +1581,6 @@ void help(char * cmd) {
                    "\n"
                    "Usage Example:\n"
                    "Help Enter\n\n");
+
     }
 }
