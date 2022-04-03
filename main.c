@@ -3,7 +3,7 @@
 #include <string.h>
 #define clear system("clear||@cls");
 #define COMMAND_LEN 256
-#define bool char
+#define boolean char
 
 typedef struct fac_struct {
     char* name;
@@ -43,11 +43,11 @@ void make_new_f(f_head * f_hd, char * node_name);
 void create(head * hd, f_head * f_hd);
 void UI(head * hd, f_head * f_hd);
 void quick_look(head * hd);
-bool cmd_check(char * cmd, head * hd, f_head * f_hd);
+boolean cmd_check(char * cmd, head * hd, f_head * f_hd);
 void enter(head * hd, f_head * f_hd, char* cmd);
 void import(head * hd, f_head * f_hd, char * cmd);
 void export(head * hd, char * cmd);
-bool func_cmp(char * cmd, char * compare);
+boolean func_cmp(char * cmd, char * compare);
 void help(char * cmd);
 char* just_copy(const char* st);
 void delete_all(head * hd, f_head * f_hd);
@@ -101,19 +101,23 @@ int main() {
 
 void UI(head * hd, f_head * f_hd) {
     char * cmd;
-    bool quit;
+    boolean quit;
     quit = 0;
     cmd = malloc(COMMAND_LEN);
     quick_look(hd);
     while (!quit) {
+        printf("\nType Help to see what Kartoteka can do\n"
+               "Type Quit to quit\n\n");
         printf(">>> ");
         bgets(cmd, COMMAND_LEN - 1, stdin);
-        quit = cmd_check(cmd, hd, f_hd);
+        if (strcount(cmd, "&") == 0)
+            quit = cmd_check(cmd, hd, f_hd);
+
     }
 }
 
-bool cmd_check(char * cmd, head * hd, f_head * f_hd) {
-    bool q;
+boolean cmd_check(char * cmd, head * hd, f_head * f_hd) {
+    boolean q;
     q = 0;
     if(func_cmp(cmd, "Quit")) {
         printf("Thank You for using Kartoteka\n");
@@ -122,34 +126,43 @@ bool cmd_check(char * cmd, head * hd, f_head * f_hd) {
     else if(func_cmp(cmd, "Enter")) {
         clear
         enter(hd, f_hd, cmd);
+        printf("Done.\n");
         clear
     }
     else if(func_cmp(cmd, "Import")) {
         import(hd, f_hd, cmd);
+        printf("Done.\n");
     }
     else if(func_cmp(cmd, "Export")) {
         export(hd, cmd);
+        printf("Done.\n");
     }
     else if(func_cmp(cmd, "Delete All")) {
         delete_all(hd, f_hd);
+        printf("Done.\n");
     }
     else if(func_cmp(cmd, "Delete By")) {
         delete_by(hd, cmd);
+        printf("Done.\n");
     }
     else if(func_cmp(cmd, "Delete")) {
         delete(hd, cmd);
+        printf("Done.\n");
     }
     else if(func_cmp(cmd, "Show")) {
         show(hd, cmd);
     }
     else if(func_cmp(cmd, "Sort")) {
         sort(hd, cmd);
+        printf("Done.\n");
     }
     else if(func_cmp(cmd, "Change")) {
         change(hd, f_hd, cmd);
+        printf("Done.\n");
     }
     else if(func_cmp(cmd, "Swap")) {
         swap(hd, cmd);
+        printf("Done.\n");
     }
     else if(func_cmp(cmd, "Filter")) {
         filter(hd, cmd);
@@ -257,7 +270,7 @@ void enter(head * hd, f_head * f_hd, char * cmd) {
 void import(head * hd, f_head * f_hd, char * cmd) {
     FILE * fp = NULL;
     char * file_name, * line;
-    bool cancel;
+    boolean cancel;
     file_name = malloc(32);
 
     if(*(cmd+6) != '\0') {
@@ -295,7 +308,7 @@ void export(head * hd, char * cmd) {
     char * file_name, * yn;
     node * temp;
     unsigned long i;
-    bool cancel;
+    boolean cancel;
     cancel = 0;
     if(hd->cnt == 0) {
         printf("warning: Kartoteka is empty.\n"
@@ -363,8 +376,7 @@ void quick_look(head * hd) {
         }
         if(hd->cnt - 5 > 0) { for(i = 0; i <= 85; i++) printf("-"); printf("\n| Hidden : %-5d %68s|\n", hd->cnt - 5, " "); }
     }
-    printf("Type Help to see what Kartoteka can do\n"
-           "Type Quit to quit\n\n");
+
 }
 
 void show(head * hd, char * cmd) {
@@ -623,7 +635,7 @@ void delete_by(head* hd, char * cmd) {
     char * line_value;
     int int_value;
     float float_value;
-    bool done;
+    boolean done;
     done = 0;
     column = -3;
     if(*(cmd+9) != '\0') {
@@ -760,7 +772,7 @@ void delete_node_(head * hd, node * student) {
 
 void delete_str_internal(head * hd, char* (*field)(node*), char how, char * value) {
     node * student;
-    bool printed;
+    boolean printed;
     printed = 0;
     if(how == 4) {
         for (student = hd->first; student != NULL; student = student->next) {
@@ -817,7 +829,7 @@ void delete_int_internal(head * hd, char column, char how, int value) {
 
 void delete_float_internal(head * hd, char column, char how, float value) {
     node * student;
-    bool printed;
+    boolean printed;
     printed = 0;
     if (how == 1) {
         for (student = hd->first; student != NULL; student = student->next) {
@@ -859,7 +871,7 @@ void filter(head* hd, char * cmd) {
     char * line_value;
     int int_value;
     float float_value;
-    bool done;
+    boolean done;
     done = 0;
     column = -3;
     if(*(cmd+6) != '\0') {
@@ -975,7 +987,7 @@ void filter(head* hd, char * cmd) {
 }
 void filter_str_internal(head * hd, char* (*field)(node*), char how, char * value) {
     node * student;
-    bool printed;
+    boolean printed;
     printed = 0;
     if(how == 4) {
         for (student = hd->first; student != NULL; student = student->next) {
@@ -1004,7 +1016,7 @@ void filter_str_internal(head * hd, char* (*field)(node*), char how, char * valu
 
 void filter_int_internal(head * hd, char column, char how, int value) {
     node * student;
-    bool printed;
+    boolean printed;
     printed = 0;
     if (how == 1) {
         for (student = hd->first; student != NULL; student = student->next) {
@@ -1054,7 +1066,7 @@ void filter_int_internal(head * hd, char column, char how, int value) {
 
 void filter_float_internal(head * hd, char column, char how, float value) {
     node * student;
-    bool printed;
+    boolean printed;
     printed = 0;
     if (how == 1) {
         for (student = hd->first; student != NULL; student = student->next) {
@@ -1249,7 +1261,7 @@ void swap_cpy_internal(node * buff, node * temp1) {
 void swap(head * hd, char * cmd) {
     int no1, no2;
     node * student1, * student2;
-    bool err;
+    boolean err;
     no1 = no2 = 0;
     err = 0;
     if(*(cmd + 4) != '\0') {
@@ -1298,7 +1310,7 @@ void swap(head * hd, char * cmd) {
 
 f_node * foreign_key(f_head *f_hd, char* fac_name) {
     f_node * node, * res;
-    bool found;
+    boolean found;
     found = 0;
     for(node = f_hd->first; node != NULL && found == 0; node = node->next) {
         if(!strcmp(fac_name, node->name)) {
@@ -1387,9 +1399,9 @@ float fbgets(FILE *fp) {
     return (float)atof(bgets(st, 31, fp));
 }
 
-bool func_cmp(char * cmd, char * compare) {
+boolean func_cmp(char * cmd, char * compare) {
     char * temp1, * temp2;
-    bool res;
+    boolean res;
     res = 1;
     for(temp1 = cmd, temp2 = compare; *temp1 != '\0' && *temp2 != '\0' && res == 1; temp1++, temp2++) {
         if (*temp1 != *temp2) res = 0;
