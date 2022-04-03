@@ -60,6 +60,9 @@ void sort(head * hd, char * cmd);
 void swap(node * temp0, node * temp1);
 void swap_cpy_internal(node * buff, node * temp1);
 void q_sort_internal(node * left, node * right, char mode, char ad);
+void str_q_sort_internal(node * left, node * right, char* (*field)(node*), char ad);
+char* get_name_internal(node * student);
+char* get_fac_name_internal(node * student);
 
 int main() {
     f_head * f_hd;
@@ -600,7 +603,7 @@ void delete(head * hd, char * cmd) {
 
 void sort(head * hd, char * cmd) {
     char mode, ad;
-    mode = 0;
+    mode = 0; ad = 0;
     if(*(cmd+4) != '\0') {
         cmd += 4;
         while(*cmd == ' ') cmd++;
@@ -613,15 +616,46 @@ void sort(head * hd, char * cmd) {
         else if(func_cmp(cmd, "GIA 1")) { mode = 5; cmd += 5;}
         else if(func_cmp(cmd, "GIA 2")) { mode = 6; cmd += 5;}
         else if(func_cmp(cmd, "GIA 3")) { mode = 7; cmd += 5;}
-
-        if (*cmd != '\0') {
+        else printf("typo error: Column not found.\n");
+        if (*cmd != '\0' && mode != 0) {
             while (*cmd == ' ') cmd++;
             if(*cmd == 'a') ad = 1;
             else if(*cmd == 'd') ad = -1;
         }
     }
-    if(mode > 0)
-        q_sort_internal(hd->first, hd->last, mode, ad);
+    while(mode == 0) {
+        printf("Choose Column to sort\n"
+               "0 - Cancel\n"
+               "1 - Name\n"
+               "2 - Faculty\n"
+               "3 - Age\n"
+               "4 - ID\n"
+               "5 - Score\n"
+               "6 - CR\n"
+               "7 - GIA 1\n"
+               "8 - GIA 2\n"
+               "9 - GIA 3\n\nColumn: ");
+        mode = ibgets(stdin)-2;
+        if (mode <= 0) mode -= 1;
+        if(mode < -3 || mode > 7) { mode = 0; printf("typo error: column not found.\n"); }
+    }
+    while(ad == 0 && mode != -3) {
+        printf("How to sort?\n0 - Cancel\n1 - Ascending\n2 - Descending\n\nMode: ");
+        ad = (char)ibgets(stdin);
+        if(ad > 2 || ad < 1) {printf("error: sort mode not found\n"); ad = 0;}
+        if(ad == 2) ad = -1;
+        if(ad == 0) ad = -3;
+    }
+    if(ad != -3 && mode != -3) {
+        if (mode > 0 && mode <= 7)
+            q_sort_internal(hd->first, hd->last, mode, ad);
+        else if (mode == -1)
+            str_q_sort_internal(hd->first, hd->last, get_fac_name_internal, ad);
+        else if (mode == -2)
+            str_q_sort_internal(hd->first, hd->last, get_name_internal, ad);
+        else
+            printf("unknown error: Unknown operation mode of Sort (mode > 7 or mode < -3)\n");
+    }
 }
 
 void q_sort_internal(node * left, node * right, char mode, char ad) {
@@ -646,7 +680,33 @@ void q_sort_internal(node * left, node * right, char mode, char ad) {
                 q_sort_internal(last->next, right, mode, ad);
         }
     }
+}
 
+char* get_name_internal(node * student) { return student->name; }
+char* get_fac_name_internal(node * student) { return student->faculty->name; }
+
+void str_q_sort_internal(node * left, node * right, char* (*field)(node*), char ad) {
+    node * last, * current;
+    if (left != right) {
+        if (left->next == right) {
+            if(strcmp(field(left), field(right)) >= 1*ad)
+                swap(left, right);
+        } else {
+            last = left;
+            current = left;
+            do {
+                current = current->next;
+                if(strcmp(field(current), field(left)) <= -1*ad) {
+                    last = last->next;
+                    swap(last, current);
+                }
+            } while (current != right);
+            swap(left, last);
+            str_q_sort_internal(left, last, field, ad);
+            if (last != right)
+                str_q_sort_internal(last->next, right, field, ad);
+        }
+    }
 }
 
 void swap(node * temp0, node * temp1) {
@@ -822,8 +882,8 @@ void help(char * cmd) {
                "Export <file name>               - to make file from Kartoteka data\n"
                "Show <max amount>                - to show up to positive max amount of lines\n"
                "Change <N>                       - to change line #N\n"
-               "Sort <column> <a/d>              - to sort column ascending/descending\n" // Not Done
-               "Filter <column> <(how)value>     - to get all lines with necessary value\n" // Not Done
+               "Sort <column> <a/d>              - to sort column ascending/descending\n"
+               "Filter <column> <(how)value>     - to show all lines with necessary value\n" // Not Done
                "Delete All                       - to delete all Kartoteka database\n"
                "Delete <N>                       - to delete line #N\n"
                "Delete by <column> <(how)value>  - to delete lines with necessary value\n" // Not Done
