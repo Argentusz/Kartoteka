@@ -129,15 +129,17 @@ void UI_(head * hd, f_head * f_hd) {
                 q = cmd_check_(striped(cmd_arr[i], ' '), hd, f_hd);
                 if(q) quit = 1;
             }
+            free(cmd_arr);
         }
     }
+    printf("Thank You for using Kartoteka\n");
 }
 
 boolean cmd_check_(char * cmd, head * hd, f_head * f_hd) {
     boolean q;
     q = 0;
     if(func_cmp_(cmd, "Quit")) {
-        printf("Thank You for using Kartoteka\n");
+
         q = 1;
     }
     else if(func_cmp_(cmd, "Enter")) {
