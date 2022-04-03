@@ -57,7 +57,9 @@ void show(head * hd, char * cmd);
 void new_no(head * hd);
 void change(head * hd, f_head * f_hd, char * cmd);
 void filter(head* hd, char * cmd);
-void filter_int_internal(head * hd, char column, char how, int int_value);
+void filter_int_internal(head * hd, char column, char how, int value);
+void filter_float_internal(head * hd, char column, char how, float value);
+void filter_str_internal(head * hd, char* (*field)(node*), char how, char * value);
 void sort(head * hd, char * cmd);
 void swap(head * hd, char * cmd);
 void swap_internal(node * temp0, node * temp1);
@@ -632,35 +634,128 @@ void filter(head* hd, char * cmd) {
         else printf("typo error: Column not found.\n");
         if(*cmd != '\0' && column != -3) {
             for(;*cmd == ' '; cmd++);
-            if(func_cmp(cmd, "=")) {how = 1; cmd++;}
+            if(func_cmp(cmd, "==")) {how = 4; cmd+=2;}
+            else if(func_cmp(cmd, "=")) {how = 1; cmd++;}
             else if(func_cmp(cmd, ">=")) {how = 3; cmd+=2;}
             else if(func_cmp(cmd, ">")) {how = 2; cmd++;}
             else if(func_cmp(cmd, "<=")) {how = -2 ; cmd+=2;}
             else if(func_cmp(cmd, "<")) {how = -1; cmd++;}
             if(*cmd != '\0' && how != 0) {
-                for(;*cmd == ' ' || *cmd == '='; cmd++);
+                for(;*cmd == ' '; cmd++);
                 if(column < 0) {
                     line_value = malloc(32);
                     line_value = cmd;
+                    if(how != 1 && how != 4) printf("typo error: Can only check equality of strings (=/==)\n");
+                    else {
+                        if(column == -1)
+                            filter_str_internal(hd, get_fac_name_internal, how, line_value);
+                        if(column == -2)
+                            filter_str_internal(hd, get_name_internal, how, line_value);
+                    }
                 } else if (column == 3 || column == 4) {
+                    if(how == 4) how = 1;
                     float_value = (float)atof(cmd);
+                    filter_float_internal(hd, column, how, float_value);
                 } else {
+                    if(how == 4) how = 1;
                     int_value = (int)strtol(cmd, NULL, 10);
                     filter_int_internal(hd, column, how, int_value);
                 }
             }
         }
     }
-
+    while(column == -3) {
+        printf("Choose Column to filter\n"
+               "0 - Cancel\n"
+               "1 - Name\n"
+               "2 - Faculty\n"
+               "3 - No\n"
+               "4 - Age\n"
+               "5 - ID\n"
+               "6 - Score\n"
+               "7 - CR\n"
+               "8 - GIA 1\n"
+               "9 - GIA 2\n"
+               "10 - GIA 3\n\nColumn: ");
+        column = ibgets(stdin);
+        if (column == 0) column = -4;
+        else if(column >= 1 && column <= 10) column -= 3;
+        else {printf("typo error: Column not found.\n"); column = -3;}
+    }
+    while(how == 0 && column != -4) {
+        printf("Choose how to sort\n"
+               "0 - Cancel\n"
+               "1 - <=\n"
+               "2 - <\n"
+               "3 - =\n"
+               "4 - >\n"
+               "5 - >=\n"
+               "6 - ==\n\nHow: ");
+        how = ibgets(stdin);
+        if(how == 0) column = -4;
+        else if(how >= 1 && how <= 2) how -= 3;
+        else if(how >= 3 && how <= 6) how -= 2;
+        else {printf("typo error: Mode not found.\n"); how = 0;}
+    }
+    if(column < 0 && column !=-4) {
+        line_value = malloc(32);
+        if(how != 1 && how != 4) printf("typo error: Can only check equality of strings (=/==)\n");
+        else {
+            printf("Enter the Value: ");
+            bgets(line_value, 31, stdin);
+            if(column == -1)
+                filter_str_internal(hd, get_fac_name_internal, how, line_value);
+            if(column == -2)
+                filter_str_internal(hd, get_name_internal, how, line_value);
+        }
+    } else if (column == 3 || column == 4) {
+        printf("Enter the Value: ");
+        if(how == 4) how = 1;
+        float_value = fbgets(stdin);
+        filter_float_internal(hd, column, how, float_value);
+    } else if(column != -4) {
+        printf("Enter the Value: ");
+        if(how == 4) how = 1;
+        int_value = ibgets(stdin);
+        filter_int_internal(hd, column, how, int_value);
+    }
+}
+void filter_str_internal(head * hd, char* (*field)(node*), char how, char * value) {
+    node * student;
+    bool printed;
+    printed = 0;
+    if(how == 4) {
+        for (student = hd->first; student != NULL; student = student->next) {
+            if (!strcmp(field(student), value)) {
+                if (!printed)
+                    printf("| %-2s | %-2s | %-23s | %-7s | %-3s | %3s | %2s | %-15s |\n", "No", "ID", "Name", "Faculty",
+                           "Age", "Score", "C.R.", "GIA Results");
+                output_internal(student);
+                printed = 1;
+            }
+        }
+    }
+    else if(how == 1) {
+        for (student = hd->first; student != NULL; student = student->next) {
+            if (func_cmp(field(student), value)) {
+                if (!printed)
+                    printf("| %-2s | %-2s | %-23s | %-7s | %-3s | %3s | %2s | %-15s |\n", "No", "ID", "Name", "Faculty",
+                           "Age", "Score", "C.R.", "GIA Results");
+                output_internal(student);
+                printed = 1;
+            }
+        }
+    }
+    if(!printed) printf("Nothing Found.\n");
 }
 
-void filter_int_internal(head * hd, char column, char how, int int_value) {
+void filter_int_internal(head * hd, char column, char how, int value) {
     node * student;
     bool printed;
     printed = 0;
     if (how == 1) {
         for (student = hd->first; student != NULL; student = student->next) {
-            if (*(&student->no + column) == int_value) {
+            if (*(&student->no + column) == value) {
                 if(!printed) printf("| %-2s | %-2s | %-23s | %-7s | %-3s | %3s | %2s | %-15s |\n", "No", "ID", "Name", "Faculty", "Age", "Score", "C.R.","GIA Results");
                 output_internal(student);
                 printed = 1;
@@ -669,7 +764,7 @@ void filter_int_internal(head * hd, char column, char how, int int_value) {
     }
     else if (how == 2) {
         for (student = hd->first; student != NULL; student = student->next) {
-            if (*(&student->no + column) > int_value) {
+            if (*(&student->no + column) > value) {
                 if(!printed) printf("| %-2s | %-2s | %-23s | %-7s | %-3s | %3s | %2s | %-15s |\n", "No", "ID", "Name", "Faculty", "Age", "Score", "C.R.","GIA Results");
                 output_internal(student);
                 printed = 1;
@@ -678,7 +773,7 @@ void filter_int_internal(head * hd, char column, char how, int int_value) {
     }
     else if (how == 3) {
         for (student = hd->first; student != NULL; student = student->next) {
-            if (*(&student->no + column) >= int_value) {
+            if (*(&student->no + column) >= value) {
                 if(!printed) printf("| %-2s | %-2s | %-23s | %-7s | %-3s | %3s | %2s | %-15s |\n", "No", "ID", "Name", "Faculty", "Age", "Score", "C.R.","GIA Results");
                 output_internal(student);
                 printed = 1;
@@ -686,7 +781,7 @@ void filter_int_internal(head * hd, char column, char how, int int_value) {
         }
     } else if (how == -2) {
         for (student = hd->first; student != NULL; student = student->next) {
-            if (*(&student->no + column) <= int_value) {
+            if (*(&student->no + column) <= value) {
                 if(!printed) printf("| %-2s | %-2s | %-23s | %-7s | %-3s | %3s | %2s | %-15s |\n", "No", "ID", "Name", "Faculty", "Age", "Score", "C.R.","GIA Results");
                 output_internal(student);
                 printed = 1;
@@ -694,7 +789,57 @@ void filter_int_internal(head * hd, char column, char how, int int_value) {
         }
     } else if (how == -1) {
         for (student = hd->first; student != NULL; student = student->next) {
-            if (*(&student->no + column) < int_value) {
+            if (*(&student->no + column) < value) {
+                if(!printed) printf("| %-2s | %-2s | %-23s | %-7s | %-3s | %3s | %2s | %-15s |\n", "No", "ID", "Name", "Faculty", "Age", "Score", "C.R.","GIA Results");
+                output_internal(student);
+                printed = 1;
+            }
+        }
+    }
+    if(!printed) printf("Nothing Found.\n");
+}
+
+void filter_float_internal(head * hd, char column, char how, float value) {
+    node * student;
+    bool printed;
+    printed = 0;
+    if (how == 1) {
+        for (student = hd->first; student != NULL; student = student->next) {
+            if (*(&student->avg_score + column - 3) == value) {
+                if(!printed) printf("| %-2s | %-2s | %-23s | %-7s | %-3s | %3s | %2s | %-15s |\n", "No", "ID", "Name", "Faculty", "Age", "Score", "C.R.","GIA Results");
+                output_internal(student);
+                printed = 1;
+            }
+        }
+    }
+    else if (how == 2) {
+        for (student = hd->first; student != NULL; student = student->next) {
+            if (*(&student->avg_score + column - 3) > value) {
+                if(!printed) printf("| %-2s | %-2s | %-23s | %-7s | %-3s | %3s | %2s | %-15s |\n", "No", "ID", "Name", "Faculty", "Age", "Score", "C.R.","GIA Results");
+                output_internal(student);
+                printed = 1;
+            }
+        }
+    }
+    else if (how == 3) {
+        for (student = hd->first; student != NULL; student = student->next) {
+            if (*(&student->avg_score + column - 3) >= value) {
+                if(!printed) printf("| %-2s | %-2s | %-23s | %-7s | %-3s | %3s | %2s | %-15s |\n", "No", "ID", "Name", "Faculty", "Age", "Score", "C.R.","GIA Results");
+                output_internal(student);
+                printed = 1;
+            }
+        }
+    } else if (how == -2) {
+        for (student = hd->first; student != NULL; student = student->next) {
+            if (*(&student->avg_score + column - 3) <= value) {
+                if(!printed) printf("| %-2s | %-2s | %-23s | %-7s | %-3s | %3s | %2s | %-15s |\n", "No", "ID", "Name", "Faculty", "Age", "Score", "C.R.","GIA Results");
+                output_internal(student);
+                printed = 1;
+            }
+        }
+    } else if (how == -1) {
+        for (student = hd->first; student != NULL; student = student->next) {
+            if (*(&student->avg_score + column - 3) < value) {
                 if(!printed) printf("| %-2s | %-2s | %-23s | %-7s | %-3s | %3s | %2s | %-15s |\n", "No", "ID", "Name", "Faculty", "Age", "Score", "C.R.","GIA Results");
                 output_internal(student);
                 printed = 1;
@@ -711,6 +856,9 @@ void output_internal(node * student) {
            student->avg_score, student->completion_rate,
            student->gia_results[0], student->gia_results[1], student->gia_results[2]);
 }
+
+
+
 
 void sort(head * hd, char * cmd) {
     char mode, ad;
@@ -1047,7 +1195,7 @@ void help(char * cmd) {
                "Change <N>                       - to change line #N\n"
                "Swap <N1> <N2>                   - to swap lines with no N1 and N2\n"
                "Sort <column> <a/d>              - to sort column ascending/descending\n"
-               "Filter <column> <(how)value>     - to show all lines with necessary value\n" // Not Done
+               "Filter <column> <(how)value>     - to show all lines with necessary value\n"
                "Delete All                       - to delete all Kartoteka database\n"
                "Delete <N>                       - to delete line #N\n"
                "Delete By <column> <(how)value>  - to delete lines with necessary value\n" // Not Done
