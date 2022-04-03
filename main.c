@@ -1524,6 +1524,17 @@ void help(char * cmd) {
         else if(func_cmp_(cmd, "Delete All"))
             printf("Delete All function is used to delete all Kartoteka database\n"
                    "All the lines and faculties will be deleted.\n\n");
+        else if(func_cmp_(cmd, "Delete By"))
+            printf("Delete By function is used to delete all the lines that meet the requirements\n"
+                   "You can type Delete By and choose Column and Requirements\n"
+                   "Or Just type Delete By <Column> <Requirements>\n"
+                   "\n"
+                   "Note: In strings: '==' finds exact match.\n"
+                   "                  '=' finds if it is first substring.\n"
+                   "      In numeric '=' and '==' are the same.\n"
+                   "\n"
+                   "Usage Example:\n"
+                   "Delete By Age < 18\n\n");
         else if(func_cmp_(cmd, "Delete"))
             printf("Delete function is used to delete line with a specific No\n"
                    "You can type Delete and the pick a No\n"
@@ -1560,17 +1571,6 @@ void help(char * cmd) {
                    "\n"
                    "Usage Example:\n"
                    "Filter ID >= 5\n\n");
-        else if(func_cmp_(cmd, "Delete By"))
-            printf("Delete By function is used to delete all the lines that meet the requirements\n"
-                   "You can type Delete By and choose Column and Requirements\n"
-                   "Or Just type Delete By <Column> <Requirements>\n"
-                   "\n"
-                   "Note: In strings: '==' finds exact match.\n"
-                   "                  '=' finds if it is first substring.\n"
-                   "      In numeric '=' and '==' are the same.\n"
-                   "\n"
-                   "Usage Example:\n"
-                   "Delete By Age < 18\n\n");
         else if(func_cmp_(cmd, "Clear"))
             printf("Clear function is used to clear your terminal.\n\n");
         else if(func_cmp_(cmd, "Help"))
