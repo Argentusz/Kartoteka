@@ -48,6 +48,7 @@ void delete(head * hd, char * cmd);
 void delete_by(head * hd, char * cmd);
 void quick_look(head * hd);
 void help(char * cmd);
+void source_code();
 
 /** Internal Functions **/
 void csv_line_parser_(head *hd, f_head* f_hd, char* line);
@@ -195,6 +196,9 @@ boolean cmd_check_(char * cmd, head * hd, f_head * f_hd) {
         help(cmd);
     }
     else if(func_cmp_(cmd, "Clear")) clear
+    else if(func_cmp_(cmd, "Source Code")) {
+        source_code();
+    }
     else {
         printf("typo error: Command not found: %s\n", cmd);
         if(cmd[0] > 'Z' || cmd[0] < 'A') printf("Note that all commands start with capital letter\n");
@@ -1628,4 +1632,10 @@ void help(char * cmd) {
                    "Help Enter\n\n");
 
     }
+}
+
+void source_code() {
+    printf("Kartoteka is an open-source project made by Maksim Trostin\n"
+           "Source Code: https://github.com/Argentusz/Semestralna_II\n\n"
+           "Kartoteka Source Code is licensed under the Creative Commons Zero v1.0 Universal\n\n");
 }
