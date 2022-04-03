@@ -689,14 +689,14 @@ void str_q_sort_internal(node * left, node * right, char* (*field)(node*), char 
     node * last, * current;
     if (left != right) {
         if (left->next == right) {
-            if(strcmp(field(left), field(right)) >= 1*ad)
+            if((strcmp(field(left), field(right)) > 0 && ad == 1) || (strcmp(field(left), field(right)) < 0 && ad == -1))
                 swap(left, right);
         } else {
             last = left;
             current = left;
             do {
                 current = current->next;
-                if(strcmp(field(current), field(left)) <= -1*ad) {
+                if((strcmp(field(current), field(left)) < 0 && ad == 1) || (strcmp(field(current), field(left)) > 0 && ad == -1)) {
                     last = last->next;
                     swap(last, current);
                 }
