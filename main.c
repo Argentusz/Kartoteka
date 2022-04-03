@@ -80,6 +80,7 @@ int ibgets(FILE *fp);
 float fbgets(FILE *fp);
 char** split(char *line, char sep);
 int strcount(char* in, char* substring);
+char* striped(const char *string, char border);
 
 
 int main() {
@@ -108,7 +109,9 @@ int main() {
 
 void UI_(head * hd, f_head * f_hd) {
     char * cmd;
-    boolean quit;
+    char ** cmd_arr;
+    int ampersands, i;
+    boolean quit, q;
     quit = 0;
     cmd = malloc(COMMAND_LEN);
     quick_look(hd);
@@ -117,9 +120,16 @@ void UI_(head * hd, f_head * f_hd) {
                "Type Quit to quit\n\n");
         printf(">>> ");
         bgets(cmd, COMMAND_LEN - 1, stdin);
-        if (strcount(cmd, "&") == 0)
-            quit = cmd_check_(cmd, hd, f_hd);
-
+        ampersands = strcount(cmd, "&");
+        if (ampersands == 0)
+            quit = cmd_check_(striped(cmd, ' '), hd, f_hd);
+        else {
+            cmd_arr = split(cmd, '&');
+            for(i = 0; i <= ampersands; i++) {
+                q = cmd_check_(striped(cmd_arr[i], ' '), hd, f_hd);
+                if(q) quit = 1;
+            }
+        }
     }
 }
 
@@ -1431,6 +1441,20 @@ int strcount(char* in, char* substring) {
     return count;
 }
 
+char* striped(const char *string, char border) {
+    unsigned int i, j, k, k1, string_len;
+    char *result;
+    string_len = strlen(string);
+    for(i = 0; string[i] == border; i++);
+    for(j = string_len - 1; string[j] == border; j--);
+    result = malloc(i + j + 1);
+    for(k = i, k1 = 0; k <= j; k++, k1++) {
+        result[k1] = string[k];
+    }
+    result[k+1] = '\0';
+    return result;
+}
+
 void create_(head * hd, f_head * f_hd) {
     hd->cnt = 0;
     hd->first = NULL;
@@ -1473,6 +1497,7 @@ void help(char * cmd) {
                "Delete By <Column> <(how)value>  - to delete lines with necessary value\n"
                "Quick                            - to quick look data in Kartoteka\n"
                "Clear                            - to clear the screen\n"
+               "<Command> & <Command> . . .      - to deploy several Commands\n"
                "Help <Command>                   - for documentation\n\n"
                "Use Help <Command> for specific Function documentation\n\n");
     else {
@@ -1571,6 +1596,11 @@ void help(char * cmd) {
                    "\n"
                    "Usage Example:\n"
                    "Filter ID >= 5\n\n");
+        else if(func_cmp_(cmd, "&"))
+            printf("& Helps you to deploy several Commands in one.\n"
+                   "\n"
+                   "Usage Example:\n"
+                   "Sort Age a & Delete 1 & Show\n\n");
         else if(func_cmp_(cmd, "Clear"))
             printf("Clear function is used to clear your terminal.\n\n");
         else if(func_cmp_(cmd, "Help"))
