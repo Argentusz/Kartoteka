@@ -138,8 +138,10 @@ void UI_(head * hd, f_head * f_hd) {
 boolean cmd_check_(char * cmd, head * hd, f_head * f_hd) {
     boolean q;
     q = 0;
-    if(func_cmp_(cmd, "Quit")) {
-
+    if(*cmd == '\0') {
+        /*  */
+    }
+    else if(func_cmp_(cmd, "Quit")) {
         q = 1;
     }
     else if(func_cmp_(cmd, "Enter")) {
@@ -1446,14 +1448,25 @@ int strcount(char* in, char* substring) {
 char* striped(const char *string, char border) {
     unsigned int i, j, k, k1, string_len;
     char *result;
-    string_len = strlen(string);
-    for(i = 0; string[i] == border; i++);
-    for(j = string_len - 1; string[j] == border; j--);
-    result = malloc(i + j + 1);
-    for(k = i, k1 = 0; k <= j; k++, k1++) {
-        result[k1] = string[k];
+    if(*string != '\0') {
+        string_len = strlen(string);
+        for (i = 0; string[i] == border; i++);
+        for(j = string_len-1; string[j] == border && j > 0; j--);
+        if(j > i) {
+            result = malloc(i + j + 1);
+            for (k = i, k1 = 0; k <= j; k++, k1++) {
+                result[k1] = string[k];
+            }
+            result[k + 1] = '\0';
+        } else {
+            result = malloc(1);
+            *result = 0;
+        }
     }
-    result[k+1] = '\0';
+    else {
+        result = malloc(1);
+        *result = 0;
+    }
     return result;
 }
 
