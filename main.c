@@ -59,7 +59,7 @@ void change(head * hd, f_head * f_hd, char * cmd);
 void sort(head * hd, char * cmd);
 void swap(node * temp0, node * temp1);
 void swap_cpy_internal(node * buff, node * temp1);
-void q_sort_internal(node * left, node * right);
+void q_sort_internal(node * left, node * right, char mode, char ad);
 
 int main() {
     f_head * f_hd;
@@ -599,29 +599,51 @@ void delete(head * hd, char * cmd) {
 }
 
 void sort(head * hd, char * cmd) {
-    q_sort_internal(hd->first, hd->last);
+    char mode, ad;
+    mode = 0;
+    if(*(cmd+4) != '\0') {
+        cmd += 4;
+        while(*cmd == ' ') cmd++;
+        if(func_cmp(cmd, "Name")) { mode = -2; cmd += 4;}
+        else if(func_cmp(cmd, "Faculty")) { mode = -1; cmd += 7;}
+        else if(func_cmp(cmd, "Age")) { mode = 1; cmd += 3;}
+        else if(func_cmp(cmd, "ID")) { mode = 2; cmd += 2;}
+        else if(func_cmp(cmd, "Score")) { mode = 3; cmd += 5;}
+        else if(func_cmp(cmd, "CR")) { mode = 4; cmd += 2;}
+        else if(func_cmp(cmd, "GIA 1")) { mode = 5; cmd += 5;}
+        else if(func_cmp(cmd, "GIA 2")) { mode = 6; cmd += 5;}
+        else if(func_cmp(cmd, "GIA 3")) { mode = 7; cmd += 5;}
+
+        if (*cmd != '\0') {
+            while (*cmd == ' ') cmd++;
+            if(*cmd == 'a') ad = 1;
+            else if(*cmd == 'd') ad = -1;
+        }
+    }
+    if(mode > 0)
+        q_sort_internal(hd->first, hd->last, mode, ad);
 }
 
-void q_sort_internal(node * left, node * right) {
+void q_sort_internal(node * left, node * right, char mode, char ad) {
     node * last, * current;
     if (left != right) {
         if (left->next == right) {
-            if (left->id > right->id)
+            if ((*(&left->no + mode))*ad > (*(&right->no + mode))*ad)
                 swap(left, right);
         } else {
             last = left;
             current = left;
             do {
                 current = current->next;
-                if (current->id < left->id) {
+                if ((*(&current->no + mode))*ad < (*(&left->no + mode))*ad) {
                     last = last->next;
                     swap(last, current);
                 }
             } while (current != right);
             swap(left, last);
-            q_sort_internal(left, last);
+            q_sort_internal(left, last, mode, ad);
             if (last != right)
-                q_sort_internal(last->next, right);
+                q_sort_internal(last->next, right, mode, ad);
         }
     }
 
