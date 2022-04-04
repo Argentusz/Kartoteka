@@ -144,7 +144,15 @@ int main() {
 
     /* Allocating Memory */
     f_hd = (f_head*)malloc(sizeof(f_head));
+    if(f_hd == NULL) {
+        printf("fatal error: Unable to Allocate Memory (main: f_hd)\n\n");
+        exit(1);
+    }
     hd = (head*)malloc(sizeof(head));
+    if(hd == NULL) {
+        printf("fatal error: Unable to Allocate Memory (main: hd)\n\n");
+        exit(1);
+    }
     create_(hd, f_hd);
     /* Launching User Interface */
     UI_(hd, f_hd);
@@ -158,6 +166,10 @@ void UI_(head * hd, f_head * f_hd) {
     boolean quit, q;
     quit = 0;
     cmd = malloc(COMMAND_LEN);
+    if(cmd == NULL) {
+        printf("fatal error: Unable to Allocate Memory (UI_: cmd)\n\n");
+        exit(1);
+    }
     quick_look(hd);
     while (!quit) {
         printf("\nType Help to see what Kartoteka can do\n"
@@ -259,6 +271,10 @@ void enter(head * hd, f_head * f_hd, char * cmd) {
     node * student;
     int i;
     mode = malloc(3);
+    if(mode == NULL) {
+        printf("fatal error: Unable to Allocate Memory (enter: mode)\n\n");
+        exit(1);
+    }
     /* Looking For Arguments in Command */
     if (*(cmd+5) != '\0') {
         cmd += 5;
@@ -280,13 +296,25 @@ void enter(head * hd, f_head * f_hd, char * cmd) {
         fflush(stdin);
     }
     /* yn - If User Picked Yes or No to add a Node */
-    yn = malloc(3); *yn = 'Y'; *(yn+1) = 0;
+    yn = malloc(4);
+    if(yn == NULL) {
+        printf("fatal error: Unable to Allocate Memory (enter: yn)\n\n");
+        exit(1);
+    }
+    *yn = 'Y'; *(yn+1) = 0;
     /* Line by Line Mode */
     if (*mode == 'l') {
         while(*yn == 'Y' || *yn == 'y') {
             temp = malloc(41);
+            if(temp == NULL) {
+                printf("fatal error: Unable to Allocate Memory (enter: temp)\n\n");
+                exit(1);
+            }
             student = (node*)malloc(sizeof(node));
-            if(student == NULL) {printf("fatal error: Unknown Memory Error while allocating memory in Enter. (student)\n"); exit(1);}
+            if(student == NULL) {
+                printf("fatal error: Unable to Allocate Memory (enter: student)\n\n");
+                exit(1);
+            }
             printf("Enter the name: ");
             bgets(temp, 32 - 1, stdin);
             student->name = just_copy_(temp);
@@ -329,6 +357,10 @@ void enter(head * hd, f_head * f_hd, char * cmd) {
     /* CSV mode */
     else if (*mode == 'c') {
         temp = malloc(128);
+        if(temp == NULL) {
+            printf("fatal error: Unable to Allocate Memory (enter: temp)\n\n");
+            exit(1);
+        }
         printf("Enter CSV Kartoteka line. Type Stop when finished:\n");
         bgets(temp, 127, stdin);
         while(strcmp(temp, "Stop") != 0) {
@@ -348,6 +380,10 @@ void import(head * hd, f_head * f_hd, char * cmd) {
     char * file_name, * line;
     boolean cancel;
     file_name = malloc(32);
+    if(file_name == NULL) {
+        printf("fatal error: Unable to Allocate Memory (import: file_name)\n\n");
+        exit(1);
+    }
     /* Looking For Arguments in Command */
     if(*(cmd+6) != '\0') {
         cmd += 7;
@@ -372,6 +408,10 @@ void import(head * hd, f_head * f_hd, char * cmd) {
 
     if(!cancel) {
         line = malloc(128);
+        if(line == NULL) {
+            printf("fatal error: Unable to Allocate Memory (import: line)\n\n");
+            exit(1);
+        }
         while (bgets(line, 128, fp) != NULL) {
             csv_line_parser_(hd, f_hd, line);
         }
@@ -392,12 +432,20 @@ void export(head * hd, char * cmd) {
         printf("warning: Kartoteka is empty.\n"
                "Are you sure you want to continue? (Y/N): ");
         yn = malloc(3);
+        if(yn == NULL) {
+            printf("fatal error: Unable to Allocate Memory (export: yn)\n\n");
+            exit(1);
+        }
         bgets(yn, 11, stdin);
         cancel = 1;
         if((*yn == 'Y' || *yn == 'y') && *(yn+1) == '\0') cancel = 0;
     }
     if(!cancel) {
         file_name = malloc(32);
+        if(file_name == NULL) {
+            printf("fatal error: Unable to Allocate Memory (export: file_name)\n\n");
+            exit(1);
+        }
         /* Looking For Arguments in Command */
         if (*(cmd + 6) != '\0') {
             cmd += 7;
@@ -414,6 +462,10 @@ void export(head * hd, char * cmd) {
         /* If File Exists give a Warning */
         if (fp != NULL) {
             yn = malloc(3);
+            if(yn == NULL) {
+                printf("fatal error: Unable to Allocate Memory (export: yn)\n\n");
+                exit(1);
+            }
             cancel = 1;
             printf("warning: File '%s' already exists.\n"
                    "This will overwrite file\n"
@@ -501,6 +553,10 @@ void change(head * hd, f_head * f_hd, char * cmd) {
 
     mode = malloc(3);
     if(mode == NULL) {
+        printf("fatal error: Unable to Allocate Memory (change: mode)\n\n");
+        exit(1);
+    }
+    if(mode == NULL) {
         printf("fatal error: Unknown Memory Error while allocating memory in Change. (mode)\n");
         exit(1);
     }
@@ -555,6 +611,10 @@ void change(head * hd, f_head * f_hd, char * cmd) {
                     /* Line by Line Mode */
                     temp = malloc(41);
                     if(temp == NULL) {
+                        printf("fatal error: Unable to Allocate Memory (change: temp)\n\n");
+                        exit(1);
+                    }
+                    if(temp == NULL) {
                         printf("fatal error: Unknown Memory Error while allocating memory in Change. (temp)\n");
                         exit(1);
                     }
@@ -580,6 +640,10 @@ void change(head * hd, f_head * f_hd, char * cmd) {
                 } else if (*mode == 'c') {
                     /* CSV Mode */
                     temp = malloc(128);
+                    if(temp == NULL) {
+                        printf("fatal error: Unable to Allocate Memory (change: temp)\n\n");
+                        exit(1);
+                    }
                     bgets(temp, 127, stdin);
                     if(strcount(temp, ";") != 8) {
                         printf("typo error: Wrong Amount of Members in CSV\n"
@@ -612,12 +676,12 @@ void csv_line_parser_(head *hd, f_head* f_hd, char* line) {
     char **splitLine;
     db = (node*)malloc(sizeof(node));
     if(db == NULL) {
-        printf("fatal error: Unknown Memory Error while parsing CSV line. (db)\n");
+        printf("fatal error: Unable to Allocate Memory (csv_line_parser_: db)\n\n");
         exit(1);
     }
     splitLine = split(line, ';');
     if(splitLine == NULL) {
-        printf("fatal error: Unknown Memory Error while parsing CSV line. (splitLine)\n");
+        printf("fatal error: Unable to Allocate Memory (csv_line_parser_: splitLine)\n\n");
         exit(1);
     }
 
@@ -741,6 +805,10 @@ void delete_by(head* hd, char * cmd) {
                 /* Third Argument - Value (Type Depends on Column) */
                 if(column < 0) {
                     line_value = malloc(32);
+                    if(line_value == NULL) {
+                        printf("fatal error: Unable to Allocate Memory (delete_by: line_value)\n\n");
+                        exit(1);
+                    }
                     line_value = cmd;
                     if(how == 1 || how == 4)
                     {
@@ -810,6 +878,10 @@ void delete_by(head* hd, char * cmd) {
         }
         if (column < 0 && column != -4) {
             line_value = malloc(32);
+            if(line_value == NULL) {
+                printf("fatal error: Unable to Allocate Memory (delete_by: line_value)\n\n");
+                exit(1);
+            }
             if (how != 1 && how != 4) printf("typo error: Can only check equality of strings (=/==)\n");
             else {
                 printf("Enter the Value: ");
@@ -988,7 +1060,6 @@ void filter(head* hd, char * cmd) {
             if(*cmd != '\0' && how != 0) {
                 for(;*cmd == ' '; cmd++);
                 if(column < 0) {
-                    line_value = malloc(32);
                     line_value = cmd;
                     if(how == 1 || how == 4) {
                         if(column == -1)
@@ -1053,6 +1124,10 @@ void filter(head* hd, char * cmd) {
         }
         if (column < 0 && column != -4) {
             line_value = malloc(32);
+            if(line_value == NULL) {
+                printf("fatal error: Unable to Allocate Memory (filter: line_value)\n\n");
+                exit(1);
+            }
             if (how != 1 && how != 4) printf("typo error: Can only check equality of strings (=/==)\n");
             else {
                 printf("Enter the Value: ");
@@ -1329,7 +1404,10 @@ void str_q_sort_(node * left, node * right, char* (*field)(node*), char ad) {
 void swap_(node * temp0, node * temp1) {
     node * buff;
     buff = (node*)malloc(sizeof(node));
-
+    if(buff == NULL) {
+        printf("fatal error: Unable to Allocate Memory (swap_: buff)\n\n");
+        exit(1);
+    }
     swap_cpy_(buff, temp1);
     swap_cpy_(temp1, temp0);
     swap_cpy_(temp0, buff);
@@ -1424,6 +1502,10 @@ f_node * foreign_key_(f_head *f_hd, char* fac_name) {
 void make_new_f_(f_head * f_hd, char * node_name) {
     f_node * node;
     node = (f_node*)malloc(sizeof(f_node));
+    if(node == NULL) {
+        printf("fatal error: Unable to Allocate Memory (make_new_f_: node)\n\n");
+        exit(1);
+    }
     node->name = just_copy_(node_name);
     node->next = NULL;
     if(!f_hd->cnt) {
@@ -1447,12 +1529,20 @@ char** split(char *line, const char sep) {
         if(line[i] == sep) separators_in_line++;
 
     result_array = (char**)malloc((separators_in_line + 1) * sizeof (char*));
+    if(result_array == NULL) {
+        printf("fatal error: Unable to Allocate Memory (split: result_array)\n\n");
+        exit(1);
+    }
     /* Allocating Memory for each String Element */
     for(i = 0; i < separators_in_line + 1; i++) {
         if(result_array != NULL) {
             result_array[i] = (char*)malloc(strlen(line) * sizeof(char));
             if (result_array[i] == NULL) result_array = NULL;
         } else i = separators_in_line + 1;
+    }
+    if(result_array == NULL) {
+        printf("fatal error: Unable to Allocate Memory (split: result_array)\n\n");
+        exit(1);
     }
     /* Splitting */
     if (result_array != NULL) {
@@ -1489,6 +1579,10 @@ int ibgets(FILE *fp) {
     char * st;
     /* Max int is 10 digit long */
     st = malloc(11);
+    if(st == NULL) {
+        printf("fatal error: Unable to Allocate Memory (ibgets: st)\n\n");
+        exit(1);
+    }
     return (int)strtol(bgets(st, 11, fp), NULL, 10);
 }
 
@@ -1496,6 +1590,10 @@ float fbgets(FILE *fp) {
     char* st;
     /* Max float digit counter is 31 */
     st = malloc(32);
+    if(st == NULL) {
+        printf("fatal error: Unable to Allocate Memory (fbgets: st)\n\n");
+        exit(1);
+    }
     return (float)strtod(bgets(st, 31, fp), NULL);
 }
 
@@ -1503,6 +1601,10 @@ char cbgets(FILE * fp) {
     char* st;
     /* Max char is 3 digit long */
     st = malloc(4);
+    if(st == NULL) {
+        printf("fatal error: Unable to Allocate Memory (cbgets: st)\n\n");
+        exit(1);
+    }
     return (char)strtol(bgets(st, 4, fp), NULL, 10);
 }
 
@@ -1548,6 +1650,10 @@ char* striped(const char *string, char border) {
         /* If String consists only from Border j<=i */
         if(j > i) {
             result = malloc(i + j + 1);
+            if(result == NULL) {
+                printf("fatal error: Unable to Allocate Memory (striped: result)\n\n");
+                exit(1);
+            }
             for (k = i, k1 = 0; k <= j; k++, k1++) {
                 result[k1] = string[k];
             }
@@ -1555,6 +1661,10 @@ char* striped(const char *string, char border) {
         } else {
             /* Returns string \0 if String consists only from Border */
             result = malloc(1);
+            if(result == NULL) {
+                printf("fatal error: Unable to Allocate Memory (striped: result)\n\n");
+                exit(1);
+            }
             *result = 0;
         }
     }
@@ -1562,9 +1672,17 @@ char* striped(const char *string, char border) {
         if(*string == border) {
             /* Returns string \0 if input is \0 */
             result = malloc(1);
+            if(result == NULL) {
+                printf("fatal error: Unable to Allocate Memory (striped: result)\n\n");
+                exit(1);
+            }
             *result = 0;
         } else {
             result = malloc(2);
+            if(result == NULL) {
+                printf("fatal error: Unable to Allocate Memory (striped: result)\n\n");
+                exit(1);
+            }
             *result = *string;
             *(result+1) = 0;
         }
@@ -1587,6 +1705,10 @@ char* just_copy_(const char* st) {
     /* strcpy() from string.h does not like pointers to a structure member in some cases */
     len = strlen(st);
     res = malloc(len);
+    if(res == NULL) {
+        printf("fatal error: Unable to Allocate Memory (just_copy_: res)\n\n");
+        exit(1);
+    }
     for(i = 0; i < len; *(res + i) = *(st + i), i++);
     *(res + i) = '\0';
     return res;
