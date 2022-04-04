@@ -117,6 +117,8 @@ char* bgets(char *st, int len, FILE *fp);
 int ibgets(FILE *fp);
 /* Read Float from a Keyboard */
 float fbgets(FILE *fp);
+/* Read Char (as a number, not a symbol) */
+char cbgets(FILE * fp);
 /* Split String by a Separator */
 char** split(char *line, char sep);
 /* Counts Amount of a Substrings in a String */
@@ -779,7 +781,7 @@ void delete_by(head* hd, char * cmd) {
                    "8 - GIA 1\n"
                    "9 - GIA 2\n"
                    "10 - GIA 3\n\nColumn: ");
-            column = ibgets(stdin);
+            column = cbgets(stdin);
             if (column == 0) column = -4;
             else if (column >= 1 && column <= 10) column -= 3;
             else {
@@ -797,7 +799,7 @@ void delete_by(head* hd, char * cmd) {
                    "4 - >\n"
                    "5 - >=\n"
                    "6 - ==\n\nRelation: ");
-            how = ibgets(stdin);
+            how = cbgets(stdin);
             if (how == 0) column = -4;
             else if (how >= 1 && how <= 2) how -= 3;
             else if (how >= 3 && how <= 6) how -= 2;
@@ -1023,7 +1025,7 @@ void filter(head* hd, char * cmd) {
                    "8 - GIA 1\n"
                    "9 - GIA 2\n"
                    "10 - GIA 3\n\nColumn: ");
-            column = ibgets(stdin);
+            column = cbgets(stdin);
             if (column == 0) column = -4;
             else if (column >= 1 && column <= 10) column -= 3;
             else {
@@ -1040,7 +1042,7 @@ void filter(head* hd, char * cmd) {
                    "4 - >\n"
                    "5 - >=\n"
                    "6 - ==\n\nRelation: ");
-            how = ibgets(stdin);
+            how = cbgets(stdin);
             if (how == 0) column = -4;
             else if (how >= 1 && how <= 2) how -= 3;
             else if (how >= 3 && how <= 6) how -= 2;
@@ -1247,7 +1249,8 @@ void sort(head * hd, char * cmd) {
                "7 - GIA 1\n"
                "8 - GIA 2\n"
                "9 - GIA 3\n\nColumn: ");
-        mode = ibgets(stdin)-2;
+        mode = cbgets(stdin);
+        mode -= 2;
         if (mode <= 0) mode -= 1;
         if(mode < -3 || mode > 7) { mode = 0; printf("typo error: column not found.\n"); }
     }
@@ -1492,8 +1495,15 @@ int ibgets(FILE *fp) {
 float fbgets(FILE *fp) {
     char* st;
     /* Max float digit counter is 31 */
-    st = malloc(31);
+    st = malloc(32);
     return (float)atof(bgets(st, 31, fp));
+}
+
+char cbgets(FILE * fp) {
+    char* st;
+    /* Max char is 3 digit long */
+    st = malloc(4);
+    return (char)strtol(bgets(st, 4, fp), NULL, 10);
 }
 
 boolean func_cmp_(char * cmd, char * compare) {
