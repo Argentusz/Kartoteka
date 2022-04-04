@@ -131,6 +131,8 @@ int main() {
     f_head * f_hd;
     head * hd;
     printf("Welcome to Kartoteka v1.0\n"
+           "Kartoteka is an open-source project made by Maksim Trostin\n"
+           "Kartoteka Source Code is licensed under the Creative Commons Zero v1.0 Universal\n\n"
            " ___   ___   ________   ______   _________  ______   _________  ______   ___   ___   ________      \n"
            "/___/\\/__/\\ /_______/\\ /_____/\\ /________/\\/_____/\\ /________/\\/_____/\\ /___/\\/__/\\ /_______/\\     \n"
            "\\::.\\ \\\\ \\ \\\\::: _  \\ \\\\:::_ \\ \\\\__.::.__\\/\\:::_ \\ \\\\__.::.__\\/\\::::_\\/_\\::.\\ \\\\ \\ \\\\::: _  \\ \\    \n"
@@ -156,6 +158,8 @@ int main() {
     create_(hd, f_hd);
     /* Launching User Interface */
     UI_(hd, f_hd);
+    free(hd);
+    free(f_hd);
     return 0;
 }
 
@@ -199,7 +203,7 @@ boolean cmd_check_(char * cmd, head * hd, f_head * f_hd) {
     boolean q;
     q = 0;
     if(*cmd == '\0') {
-        /* To prevent && Quitting the Program */
+        /* To prevent '&&' Quitting the Program */
     }
     else if(func_cmp_(cmd, "Quit")) {
         q = 1;
@@ -1742,6 +1746,7 @@ void help(char * cmd) {
                "Quick                            - to quick look data in Kartoteka\n"
                "Clear                            - to clear the screen\n"
                "<Command> & <Command> . . .      - to deploy several Commands\n"
+               "Source Code                      - to show a link on a source code.\n"
                "Help <Command>                   - for documentation\n\n"
                "Use Help <Command> for specific Function documentation\n\n");
     else {
@@ -1856,6 +1861,8 @@ void help(char * cmd) {
                    "\n"
                    "Usage Example:\n"
                    "Help Enter\n\n");
+        else if(func_cmp_(cmd, "Source Code"))
+            source_code();
         else
             printf("Function %s not found\n\n", cmd);
     }
