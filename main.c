@@ -595,8 +595,8 @@ void change(head * hd, f_head * f_hd, char * cmd) {
                         student->faculty = foreign_key_(f_hd, splitLine[1]);
                         student->age = (int) strtol(splitLine[2], NULL, 10);
                         student->id = (int) strtol(splitLine[3], NULL, 10);
-                        student->avg_score = (float)atof(splitLine[4]);
-                        student->completion_rate = (float)atof(splitLine[5]);
+                        student->avg_score = (float)strtod(splitLine[4], NULL);
+                        student->completion_rate = (float)strtod(splitLine[5], NULL);
                         for (i = 0; i < 3; i++) student->gia_results[i] = (int) strtol(splitLine[6 + i], NULL, 10);
                         free(splitLine);
                     }
@@ -625,8 +625,8 @@ void csv_line_parser_(head *hd, f_head* f_hd, char* line) {
     db->faculty = foreign_key_(f_hd, splitLine[1]);
     db->age = (int)strtol(splitLine[2], NULL, 10);
     db->id = (int)strtol(splitLine[3], NULL, 10);
-    db->avg_score = (float)atof(splitLine[4]);
-    db->completion_rate = (float)atof(splitLine[5]);
+    db->avg_score = (float)strtod(splitLine[4], NULL);
+    db->completion_rate = (float)strtod(splitLine[5], NULL);
     for(j = 0; j < 3; j++) db->gia_results[j] = (int)strtol(splitLine[6+j], NULL, 10);
     db->next = NULL;
     db->no = ++hd->cnt;
@@ -752,7 +752,7 @@ void delete_by(head* hd, char * cmd) {
                     }
                 } else if (column == 3 || column == 4) {
                     if(how == 4) how = 1;
-                    float_value = (float)atof(cmd);
+                    float_value = (float)strtod(cmd, NULL);
                     delete_float_(hd, column, how, float_value);
                     done = 1;
                 } else {
@@ -999,7 +999,7 @@ void filter(head* hd, char * cmd) {
                     }
                 } else if (column == 3 || column == 4) {
                     if(how == 4) how = 1;
-                    float_value = (float)atof(cmd);
+                    float_value = (float)strtod(cmd, NULL);
                     filter_float_(hd, column, how, float_value);
                     done = 1;
                 } else {
@@ -1496,7 +1496,7 @@ float fbgets(FILE *fp) {
     char* st;
     /* Max float digit counter is 31 */
     st = malloc(32);
-    return (float)atof(bgets(st, 31, fp));
+    return (float)strtod(bgets(st, 31, fp), NULL);
 }
 
 char cbgets(FILE * fp) {
