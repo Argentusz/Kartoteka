@@ -3,8 +3,10 @@
 #include <string.h>
 #define clear system("clear||@cls");
 #define COMMAND_LEN 256
+/* boolean here is a char type that is used to keep only 1 or 0 (for easier reading) */
 #define boolean char
 
+/* Faculties Doubly linked list */
 typedef struct fac_struct {
     char* name;
     struct fac_struct* next;
@@ -15,6 +17,7 @@ typedef struct fac_head {
     struct fac_struct* last;
     int cnt;
 } f_head;
+/* Students Doubly linked list */
 typedef struct student_struct {
     char* name;
     f_node* faculty;
@@ -35,52 +38,90 @@ typedef struct student_head {
 
 
 /** Called by User **/
+/* Enter New Nodes from Keyboard */
 void enter(head * hd, f_head * f_hd, char* cmd);
+/* Import Nodes from file */
 void import(head * hd, f_head * f_hd, char * cmd);
+/* Export Kartoteka to a CSV format file */
 void export(head * hd, char * cmd);
+/* Show List (Up to some max number if exists) */
 void show(head * hd, char * cmd);
+/* Change Some Node */
 void change(head * hd, f_head * f_hd, char * cmd);
+/* Swap Two Nodes */
 void swap(head * hd, char * cmd);
+/* Sort By Any Column */
 void sort(head * hd, char * cmd);
+/* Show Nodes that meet the requirements */
 void filter(head* hd, char * cmd);
+/* Delete Everything */
 void delete_all(head * hd, f_head * f_hd);
+/* Delete One Node */
 void delete(head * hd, char * cmd);
+/* Delete Nodes that meet the requirements */
 void delete_by(head * hd, char * cmd);
+/* Quick Access to List */
 void quick_look(head * hd);
+/* Documentation */
 void help(char * cmd);
+/* Source Code link */
 void source_code();
 
 /** Internal Functions **/
+/* Parse Line and Append to a List */
 void csv_line_parser_(head *hd, f_head* f_hd, char* line);
+/* Returns Address of Faculty with a Given Name */
 f_node * foreign_key_(f_head *f_hd, char* fac_name);
+/* Creates New Faculty */
 void make_new_f_(f_head * f_hd, char * node_name);
+/* Create Dummies of head and f_head */
 void create_(head * hd, f_head * f_hd);
+/* User Interface */
 void UI_(head * hd, f_head * f_hd);
+/* Commands Distributor */
 boolean cmd_check_(char * cmd, head * hd, f_head * f_hd);
+/* Looks if String is a First Substring */
 boolean func_cmp_(char * cmd, char * compare);
+/* Copy string (Works with Structure's pointers) */
 char* just_copy_(const char* st);
+/* Update No's of a List */
 void new_no_(head * hd);
+/* Delete Given Node */
 void delete_node_(head * hd, node * student);
+/* Delete Nodes that meet the requirements (for str, int, float)*/
 void delete_str_(head * hd, char* (*field)(node*), char how, char * value);
 void delete_int_(head * hd, char column, char how, int value);
 void delete_float_(head * hd, char column, char how, float value);
+/* Output Nodes that meet the requirements (for str, int, float)*/
 void filter_int_(head * hd, char column, char how, int value);
 void filter_float_(head * hd, char column, char how, float value);
 void filter_str_(head * hd, char* (*field)(node*), char how, char * value);
+/* Swaps Two Nodes */
 void swap_(node * temp0, node * temp1);
-void swap_cpy_(node * buff, node * temp1);
+/* Copy a Data of Node */
+void swap_cpy_(node * temp0, node * temp1);
+/* Quick Sort List for Numerous and String */
 void q_sort_(node * left, node * right, char mode, char ad);
 void str_q_sort_(node * left, node * right, char* (*field)(node*), char ad);
+/* Return Name of a Node */
 char* get_name_(node * student);
+/* Return Faculty name of a Node */
 char* get_fac_name_(node * student);
+/* Print Node */
 void output_(node * student);
 
 /** BFuncs **/
+/* Read String from a Keyboard */
 char* bgets(char *st, int len, FILE *fp);
+/* Read Integer from a Keyboard */
 int ibgets(FILE *fp);
+/* Read Float from a Keyboard */
 float fbgets(FILE *fp);
+/* Split String by a Separator */
 char** split(char *line, char sep);
+/* Counts Amount of a Substrings in a String */
 int strcount(char* in, char* substring);
+/* Deletes a Border Symbol at the beginning and at the end of the String */
 char* striped(const char *string, char border);
 
 
@@ -122,17 +163,21 @@ void UI_(head * hd, f_head * f_hd) {
         printf(">>> ");
         bgets(cmd, COMMAND_LEN - 1, stdin);
         ampersands = strcount(cmd, "&");
+        /* Only One Command */
         if (ampersands == 0)
             quit = cmd_check_(striped(cmd, ' '), hd, f_hd);
         else {
+            /* A Bunch of commands */
             cmd_arr = split(cmd, '&');
             for(i = 0; i <= ampersands; i++) {
                 q = cmd_check_(striped(cmd_arr[i], ' '), hd, f_hd);
+                /* If Quit Command is in the Middle of a Command */
                 if(q) quit = 1;
             }
             free(cmd_arr);
         }
     }
+    free(cmd);
     printf("Thank You for using Kartoteka\n");
 }
 
@@ -140,7 +185,7 @@ boolean cmd_check_(char * cmd, head * hd, f_head * f_hd) {
     boolean q;
     q = 0;
     if(*cmd == '\0') {
-        /*  */
+        /* To prevent && Quitting the Program */
     }
     else if(func_cmp_(cmd, "Quit")) {
         q = 1;
@@ -212,6 +257,7 @@ void enter(head * hd, f_head * f_hd, char * cmd) {
     node * student;
     int i;
     mode = malloc(3);
+    /* Looking For Arguments in Command */
     if (*(cmd+5) != '\0') {
         cmd += 5;
         for(;*cmd == ' '; cmd++);
@@ -220,6 +266,7 @@ void enter(head * hd, f_head * f_hd, char * cmd) {
         else { printf("typo error: Mode %s not found\n", cmd); *mode = 0; }
         *(mode+1) = 0;
     }
+    /* If Arguments not found */
     while (*mode == 0) {
         printf("How would you like to print data?\n1 - Line by line\n2 - CSV Format\n0 - Cancel\n\n");
         bgets(mode, 2, stdin);
@@ -230,8 +277,9 @@ void enter(head * hd, f_head * f_hd, char * cmd) {
         if (*mode == 0) printf("typo error: Unexpected input. Write only '1', '2' or '0'.\n");
         fflush(stdin);
     }
-
+    /* yn - If User Picked Yes or No to add a Node */
     yn = malloc(3); *yn = 'Y'; *(yn+1) = 0;
+    /* Line by Line Mode */
     if (*mode == 'l') {
         while(*yn == 'Y' || *yn == 'y') {
             temp = malloc(41);
@@ -276,6 +324,7 @@ void enter(head * hd, f_head * f_hd, char * cmd) {
         }
 
     }
+    /* CSV mode */
     else if (*mode == 'c') {
         temp = malloc(128);
         printf("Enter CSV Kartoteka line. Type Stop when finished:\n");
@@ -297,11 +346,12 @@ void import(head * hd, f_head * f_hd, char * cmd) {
     char * file_name, * line;
     boolean cancel;
     file_name = malloc(32);
-
+    /* Looking For Arguments in Command */
     if(*(cmd+6) != '\0') {
         cmd += 7;
         file_name = just_copy_(cmd);
     } else {
+        /* If Arguments not found */
         printf("Type File Name to import from (Just hit Enter to cancel): ");
         bgets(file_name, 31, stdin);
     }
@@ -309,7 +359,7 @@ void import(head * hd, f_head * f_hd, char * cmd) {
     cancel = 0;
     if(*file_name != '\0') fp = fopen(file_name, "r");
     else cancel = 1;
-
+    /* If File not found */
     while(fp == NULL && cancel == 0) {
         printf("typo error: Can not open file '%s'. Maybe that file does not exist?\n"
                "Type file name once again (Just hit Enter to cancel): ", file_name);
@@ -335,6 +385,7 @@ void export(head * hd, char * cmd) {
     unsigned long i;
     boolean cancel;
     cancel = 0;
+    /* If List is Empty give a Warning */
     if(hd->cnt == 0) {
         printf("warning: Kartoteka is empty.\n"
                "Are you sure you want to continue? (Y/N): ");
@@ -345,18 +396,20 @@ void export(head * hd, char * cmd) {
     }
     if(!cancel) {
         file_name = malloc(32);
-
+        /* Looking For Arguments in Command */
         if (*(cmd + 6) != '\0') {
             cmd += 7;
             file_name = just_copy_(cmd);
         } else {
+            /* If Arguments not found */
             printf("Type File Name to export to (Just hit Enter to cancel): ");
             bgets(file_name, 31, stdin);
         }
 
-        cancel = 0;
+        /* Open File in Reading Mode to See if it Exists */
         if (*file_name != '\0') fp = fopen(file_name, "r");
         else cancel = 1;
+        /* If File Exists give a Warning */
         if (fp != NULL) {
             yn = malloc(3);
             cancel = 1;
@@ -391,14 +444,13 @@ void quick_look(head * hd) {
     if (!hd->cnt) printf("Kartoteka is empty for now.\n"
                          "Use Enter or Import to fill it.\n");
     else {
+        /* Print Table Header */
         printf("| %-2s | %-2s | %-23s | %-7s | %-3s | %3s | %2s | %-15s |\n", "No", "ID", "Name", "Faculty", "Age", "Score", "C.R.","GIA Results");
         for (temp = hd->first; temp != NULL && count < 5; temp = temp->next, count++) {
-            printf("| %-2d | %-2d | %-23s | %-7s | %-3d | %.3f | %.2f | %-3d | %-3d | %-3d |\n",
-                   temp->no, temp->id, temp->name,
-                   temp->faculty->name, temp->age,
-                   temp->avg_score, temp->completion_rate,
-                   temp->gia_results[0], temp->gia_results[1], temp->gia_results[2]);
+            /* Print 5 Nodes */
+            output_(temp);
         }
+        /* If More than 5 Nodes Print how much is Hidden */
         if(hd->cnt - 5 > 0) { for(i = 0; i <= 85; i++) printf("-"); printf("\n| Hidden : %-5d %68s|\n", hd->cnt - 5, " "); }
     }
 
@@ -410,6 +462,7 @@ void show(head * hd, char * cmd) {
     char * st = NULL;
     node * temp;
     maks = 0;
+    /* Looking For Arguments in Command */
     if(*(cmd+4) != '\0') {
         st = cmd + 5;
         if(*st > '9' || *st < '0')
@@ -420,6 +473,7 @@ void show(head * hd, char * cmd) {
             }
         else maks = (int)strtol(st, NULL, 10);
     }
+    /* If Arguments not found Print All */
     if (maks != -1) {
         if (!hd->cnt)
             printf("Kartoteka is empty for now.\n"
@@ -428,11 +482,7 @@ void show(head * hd, char * cmd) {
             printf("| %-2s | %-2s | %-23s | %-7s | %-3s | %3s | %2s | %-15s |\n", "No", "ID", "Name", "Faculty", "Age",
                    "Score", "C.R.", "GIA Results");
             for (temp = hd->first, i = 0; temp != NULL && (i < maks || maks == 0); temp = temp->next, i++) {
-                printf("| %-2d | %-2d | %-23s | %-7s | %-3d | %.3f | %.2f | %-3d | %-3d | %-3d |\n",
-                       temp->no, temp->id, temp->name,
-                       temp->faculty->name, temp->age,
-                       temp->avg_score, temp->completion_rate,
-                       temp->gia_results[0], temp->gia_results[1], temp->gia_results[2]);
+                output_(temp);
             }
             if (hd->cnt - maks > 0 && maks > 0) {
                 for (i = 0; i <= 85; i++) printf("-");
@@ -453,15 +503,19 @@ void change(head * hd, f_head * f_hd, char * cmd) {
         exit(1);
     }
     *mode = 0;
+    /* Looking For Arguments in Command */
     if(*(cmd + 6) != '\0') {
         cmd += 6;
+        /* First Argument is a Number */
         for(;*cmd == ' '; cmd++);
         if(*cmd < '9' && *cmd > '0') {
             no = (int)strtol(cmd, NULL, 10);
             if(no > 0) {
+                /* Looking how many Symbols Number took */
                 num_len = 0;
                 for (i = no; i; i /= 10, num_len++);
                 cmd += num_len;
+                /* First Argument is a Operation Mode (csv/lbl) */
                 if(*cmd != '\0') {
                     for (; *cmd == ' '; cmd++);
                     if (!strcmp(cmd, "csv")) *mode = 'c';
@@ -476,10 +530,12 @@ void change(head * hd, f_head * f_hd, char * cmd) {
             no = ibgets(stdin);
         }
     } else {
+        /* If Arguments not found */
         printf("Print No of element to change (0 to cancel): ");
         no = ibgets(stdin);
     }
     if(no > 0 && no <= hd->cnt) {
+        /* If Mode is not Given yet */
         while(*mode == 0) {
             printf("How would you like to print data?\n1 - Line by line\n2 - CSV Format\n0 - Cancel\n");
             line = ibgets( stdin);
@@ -488,11 +544,13 @@ void change(head * hd, f_head * f_hd, char * cmd) {
             else if(line == 0) *mode = 'q';
             else printf("typo error: Unexpected input. Write only '1', '2' or '0'.\n");
         }
-         if(*mode != 'q') {
+        if(*mode != 'q') {
+            /* Looking for a Node with Given No */
             for (student = hd->first; student != NULL && student->no != no; student = student->next);
             if (student == NULL) printf("error: Element with No %d not found\n", no);
             else {
                 if (*mode == 'l') {
+                    /* Line by Line Mode */
                     temp = malloc(41);
                     if(temp == NULL) {
                         printf("fatal error: Unknown Memory Error while allocating memory in Change. (temp)\n");
@@ -518,6 +576,7 @@ void change(head * hd, f_head * f_hd, char * cmd) {
                     }
                     free(temp);
                 } else if (*mode == 'c') {
+                    /* CSV Mode */
                     temp = malloc(128);
                     bgets(temp, 127, stdin);
                     if(strcount(temp, ";") != 8) {
@@ -571,6 +630,7 @@ void csv_line_parser_(head *hd, f_head* f_hd, char* line) {
     db->no = ++hd->cnt;
     if (hd->cnt < 1) {printf("fatal error: Unknown Error Negatives in counter (Parser: hd->cnt < 0)"); exit(1);}
     if(hd->cnt == 1) {
+        /* If it is First Node */
         hd->first = db;
         db->prev = NULL;
     } else {
@@ -591,7 +651,10 @@ void delete_all(head * hd, f_head * f_hd) {
         hd->last = NULL;
         hd->cnt = 0;
         if(temp->next != NULL) {
+            /* If not only one Node */
+            /* If we go up to temp == NULL we will not be able to delete last Node */
             for (temp = temp->next; temp->next != NULL; free(temp->prev), temp = temp->next);
+            free(temp->prev);
             free(temp);
         } else {
             free(temp);
@@ -616,6 +679,7 @@ void delete_all(head * hd, f_head * f_hd) {
 void delete(head * hd, char * cmd) {
     int no;
     node * student;
+    /* Looking for Arguments in Command */
     if(*(cmd + 6) != '\0') {
         cmd += 6;
         for(;*cmd == ' '; cmd++);
@@ -626,31 +690,14 @@ void delete(head * hd, char * cmd) {
             no = ibgets(stdin);
         }
     } else {
+        /* If Arguments not found */
         printf("Print No of element to delete (0 to cancel): ");
         no = ibgets(stdin);
     }
     if(no > 0 && no <= hd->cnt) {
         for(student = hd->first; student != NULL && student->no != no; student = student->next);
         if (student == NULL) printf("error: Element with No %d not found\n", no);
-        else {
-            if(no == 1) {
-                hd->first = student->next;
-                hd->first->prev = NULL;
-                free(student);
-            }
-            else if (no == hd->cnt) {
-                hd->last = student->prev;
-                hd->last->next = NULL;
-                free(student);
-            }
-            else {
-                student->prev->next = student->next;
-                student->next->prev = student->prev;
-                free(student);
-            }
-            hd->cnt--;
-            new_no_(hd);
-        }
+        else delete_node_(hd, student);
     }
     else if (no > hd->cnt) printf("error: This No is out of bounds\n");
 }
@@ -663,8 +710,10 @@ void delete_by(head* hd, char * cmd) {
     boolean done;
     done = 0;
     column = -3;
+    /* Looking for Arguments in Command */
     if(*(cmd+9) != '\0') {
         for(cmd+=9; *cmd == ' '; cmd++);
+        /* First Argument - Column */
         if(func_cmp_(cmd, "Name")) { column = -2; cmd += 4;}
         else if(func_cmp_(cmd, "Faculty")) { column = -1; cmd += 7;}
         else if(func_cmp_(cmd, "No")) { column = 0; cmd += 2;}
@@ -678,6 +727,7 @@ void delete_by(head* hd, char * cmd) {
         else printf("typo error: Column not found.\n");
         if(*cmd != '\0' && column != -3) {
             for(;*cmd == ' '; cmd++);
+            /* Second Argument */
             if(func_cmp_(cmd, "==")) { how = 4; cmd+=2;}
             else if(func_cmp_(cmd, "=")) { how = 1; cmd++;}
             else if(func_cmp_(cmd, ">=")) { how = 3; cmd+=2;}
@@ -686,6 +736,7 @@ void delete_by(head* hd, char * cmd) {
             else if(func_cmp_(cmd, "<")) { how = -1; cmd++;}
             if(*cmd != '\0' && how != 0) {
                 for(;*cmd == ' '; cmd++);
+                /* Third Argument - Value (Type Depends on Column) */
                 if(column < 0) {
                     line_value = malloc(32);
                     line_value = cmd;
@@ -711,8 +762,11 @@ void delete_by(head* hd, char * cmd) {
             }
         }
     }
+    /* Function Could be Deployed while Looking for Arguments.
+     * If not then not all Arguments were given */
     if(!done) {
         while (column == -3) {
+            /* First Argument */
             printf("Choose Column to delete by\n"
                    "0 - Cancel\n"
                    "1 - Name\n"
@@ -734,6 +788,7 @@ void delete_by(head* hd, char * cmd) {
             }
         }
         while (how == 0 && column != -4) {
+            /* Second Argument */
             printf("Choose relation\n"
                    "0 - Cancel\n"
                    "1 - <=\n"
@@ -777,28 +832,33 @@ void delete_by(head* hd, char * cmd) {
 }
 
 void delete_node_(head * hd, node * student) {
+    /* If Node is First of the list */
     if(hd->first == student) {
         hd->first = student->next;
         hd->first->prev = NULL;
         free(student);
     }
+    /* If last */
     else if(hd->last == student) {
         hd->last = student->prev;
         hd->last->next = NULL;
         free(student);
     }
+    /* If in the Middle */
     else {
         student->prev->next = student->next;
         student->next->prev = student->prev;
         free(student);
     }
     hd->cnt--;
+    new_no_(hd);
 }
 
 void delete_str_(head * hd, char* (*field)(node*), char how, char * value) {
     node * student;
     boolean printed;
     printed = 0;
+    /* how == 4 -> == (Exact match)*/
     if(how == 4) {
         for (student = hd->first; student != NULL; student = student->next) {
             if (!strcmp(field(student), value)) {
@@ -806,6 +866,7 @@ void delete_str_(head * hd, char* (*field)(node*), char how, char * value) {
             }
         }
     }
+    /* how == 1 -> = (First Substring) */
     else if(how == 1) {
         for (student = hd->first; student != NULL; student = student->next) {
             if (func_cmp_(field(student), value)) {
@@ -892,6 +953,8 @@ void delete_float_(head * hd, char column, char how, float value) {
 }
 
 void filter(head* hd, char * cmd) {
+    /* Operates Similar to a 'Delete By' function
+     * (Would be too complicated and unreadable to use function pointers, but maybe?) */
     char column, how;
     char * line_value;
     int int_value;
@@ -1140,6 +1203,7 @@ void filter_float_(head * hd, char column, char how, float value) {
 }
 
 void output_(node * student) {
+    /* Basic Format of Output */
     printf("| %-2d | %-2d | %-23s | %-7s | %-3d | %.3f | %.2f | %-3d | %-3d | %-3d |\n",
            student->no, student->id, student->name,
            student->faculty->name, student->age,
@@ -1147,12 +1211,10 @@ void output_(node * student) {
            student->gia_results[0], student->gia_results[1], student->gia_results[2]);
 }
 
-
-
-
 void sort(head * hd, char * cmd) {
     char mode, ad;
     mode = 0; ad = 0;
+    /* Looking for arguments in Command */
     if(*(cmd+4) != '\0') {
         cmd += 4;
         while(*cmd == ' ') cmd++;
@@ -1172,6 +1234,7 @@ void sort(head * hd, char * cmd) {
             else if(*cmd == 'd') ad = -1;
         }
     }
+    /* If Arguments not found */
     while(mode == 0) {
         printf("Choose Column to sort\n"
                "0 - Cancel\n"
@@ -1231,6 +1294,7 @@ void q_sort_(node * left, node * right, char mode, char ad) {
     }
 }
 
+/* To reach both student->name and student->faculty->name in one function */
 char* get_name_(node * student) { return student->name; }
 char* get_fac_name_(node * student) { return student->faculty->name; }
 
@@ -1258,9 +1322,9 @@ void str_q_sort_(node * left, node * right, char* (*field)(node*), char ad) {
     }
 }
 
+/* Internal Function. Don't Confuse with swap() */
 void swap_(node * temp0, node * temp1) {
     node * buff;
-
     buff = (node*)malloc(sizeof(node));
 
     swap_cpy_(buff, temp1);
@@ -1270,16 +1334,16 @@ void swap_(node * temp0, node * temp1) {
     free(buff);
 }
 
-void swap_cpy_(node * buff, node * temp1) {
-    buff->name = just_copy_(temp1->name);
-    buff->faculty = temp1->faculty;
-    buff->age = temp1->age;
-    buff->id = temp1->id;
-    buff->avg_score = temp1->avg_score;
-    buff->completion_rate = temp1->completion_rate;
-    buff->gia_results[0] = temp1->gia_results[0];
-    buff->gia_results[1] = temp1->gia_results[1];
-    buff->gia_results[2] = temp1->gia_results[2];
+void swap_cpy_(node * temp0, node * temp1) {
+    temp0->name = just_copy_(temp1->name);
+    temp0->faculty = temp1->faculty;
+    temp0->age = temp1->age;
+    temp0->id = temp1->id;
+    temp0->avg_score = temp1->avg_score;
+    temp0->completion_rate = temp1->completion_rate;
+    temp0->gia_results[0] = temp1->gia_results[0];
+    temp0->gia_results[1] = temp1->gia_results[1];
+    temp0->gia_results[2] = temp1->gia_results[2];
 }
 
 
@@ -1289,6 +1353,7 @@ void swap(head * hd, char * cmd) {
     boolean err;
     no1 = no2 = 0;
     err = 0;
+    /* Looking for Arguments in Command */
     if(*(cmd + 4) != '\0') {
         for(cmd+=4; *cmd == ' '; cmd++);
         for(; err == 0 && *cmd != ' ' && *cmd != '\0'; cmd++) {
@@ -1311,6 +1376,7 @@ void swap(head * hd, char * cmd) {
             }
         }
     }
+    /* If Arguments not found */
     if(err == 1 || no1 == 0 || no2== 0) {
         while (no1 == 0) {
             printf("Type no of first string to swap: ");
@@ -1337,12 +1403,14 @@ f_node * foreign_key_(f_head *f_hd, char* fac_name) {
     f_node * node, * res;
     boolean found;
     found = 0;
+    /* Looking for Faculty with a Given Name */
     for(node = f_hd->first; node != NULL && found == 0; node = node->next) {
         if(!strcmp(fac_name, node->name)) {
             found = 1;
             res = node;
         }
     }
+    /* If Faculty was not found make append new Node */
     if(!found) {
         make_new_f_(f_hd, fac_name);
         res = f_hd->last;
@@ -1356,6 +1424,7 @@ void make_new_f_(f_head * f_hd, char * node_name) {
     node->name = just_copy_(node_name);
     node->next = NULL;
     if(!f_hd->cnt) {
+        /* If it is first Node */
         node->prev = NULL;
         f_hd->first = node;
         f_hd->last = node;
@@ -1370,19 +1439,19 @@ void make_new_f_(f_head * f_hd, char * node_name) {
 char** split(char *line, const char sep) {
     int separators_in_line, i, k, m;
     char** result_array = NULL;
-
+    /* Looking amount of separators for Memory Allocation */
     for (i = 0, separators_in_line = 0; i < strlen(line); i++)
         if(line[i] == sep) separators_in_line++;
 
     result_array = (char**)malloc((separators_in_line + 1) * sizeof (char*));
-
+    /* Allocating Memory for each String Element */
     for(i = 0; i < separators_in_line + 1; i++) {
         if(result_array != NULL) {
             result_array[i] = (char*)malloc(strlen(line) * sizeof(char));
             if (result_array[i] == NULL) result_array = NULL;
         } else i = separators_in_line + 1;
     }
-
+    /* Splitting */
     if (result_array != NULL) {
         k = m = 0;
         for (i = 0; i < strlen(line); i++) {
@@ -1402,6 +1471,7 @@ char* bgets(char *st, int const len, FILE *fp) {
     unsigned long str_len;
     char* err;
     err = fgets(st, len, fp);
+    /* Getting rid of Possible \r\n not to think about them */
     str_len = strlen(st);
     if (st[str_len - 1] == '\n') {
         if (st[str_len - 2] == '\r')
@@ -1414,12 +1484,14 @@ char* bgets(char *st, int const len, FILE *fp) {
 
 int ibgets(FILE *fp) {
     char * st;
+    /* Max int is 10 digit long */
     st = malloc(11);
     return (int)strtol(bgets(st, 11, fp), NULL, 10);
 }
 
 float fbgets(FILE *fp) {
     char* st;
+    /* Max float digit counter is 31 */
     st = malloc(31);
     return (float)atof(bgets(st, 31, fp));
 }
@@ -1428,9 +1500,11 @@ boolean func_cmp_(char * cmd, char * compare) {
     char * temp1, * temp2;
     boolean res;
     res = 1;
+    /* Looking if compare is a first substring of cmd */
     for(temp1 = cmd, temp2 = compare; *temp1 != '\0' && *temp2 != '\0' && res == 1; temp1++, temp2++) {
         if (*temp1 != *temp2) res = 0;
     }
+    if(*temp1 == '\0' && *temp2 != '\0') res = 0;
     return res;
 }
 
@@ -1440,8 +1514,10 @@ int strcount(char* in, char* substring) {
     char* st0;
     count = 0;
     substring_len = strlen(substring);
+    /* Looking for substring in String */
     st0 = strstr(in, substring);
     while(st0 != NULL) {
+        /* If found go once again and count */
         count++;
         st0 += substring_len;
         st0 = strstr(st0, substring);
@@ -1452,10 +1528,14 @@ int strcount(char* in, char* substring) {
 char* striped(const char *string, char border) {
     unsigned int i, j, k, k1, string_len;
     char *result;
-    if(*string != '\0') {
-        string_len = strlen(string);
+    string_len = strlen(string);
+    /* Crushes without this check */
+    if(*string != '\0' && string_len > 1) {
+        /* Index of a First 'useful' char */
         for (i = 0; string[i] == border; i++);
+        /* Index of a Last 'useful' char */
         for(j = string_len-1; string[j] == border && j > 0; j--);
+        /* If String consists only from Border j<=i */
         if(j > i) {
             result = malloc(i + j + 1);
             for (k = i, k1 = 0; k <= j; k++, k1++) {
@@ -1463,13 +1543,21 @@ char* striped(const char *string, char border) {
             }
             result[k + 1] = '\0';
         } else {
+            /* Returns string \0 if String consists only from Border */
             result = malloc(1);
             *result = 0;
         }
     }
     else {
-        result = malloc(1);
-        *result = 0;
+        if(*string == border) {
+            /* Returns string \0 if input is \0 */
+            result = malloc(1);
+            *result = 0;
+        } else {
+            result = malloc(2);
+            *result = *string;
+            *(result+1) = 0;
+        }
     }
     return result;
 }
@@ -1486,6 +1574,7 @@ void create_(head * hd, f_head * f_hd) {
 char* just_copy_(const char* st) {
     char * res;
     unsigned long len, i;
+    /* strcpy() from string.h does not like pointers to a structure member in some cases */
     len = strlen(st);
     res = malloc(len);
     for(i = 0; i < len; *(res + i) = *(st + i), i++);
@@ -1496,10 +1585,14 @@ char* just_copy_(const char* st) {
 void new_no_(head * hd) {
     node * student;
     int i;
+    /* Refreshes No's of list, since they are designed to always be ascending and continuous */
     for(i = 0, student = hd->first; student != NULL; student->no = ++i, student = student->next);
 }
 
 void help(char * cmd) {
+    /* Documentation */
+
+    /* If no Arguments */
     if (!strcmp(cmd, "Help"))
         printf("Available Commands:\n"
                "Quit                             - to quit\n"
@@ -1520,6 +1613,7 @@ void help(char * cmd) {
                "Help <Command>                   - for documentation\n\n"
                "Use Help <Command> for specific Function documentation\n\n");
     else {
+        /* If found an Argument */
         cmd += 4;
         for(; *cmd == ' '; cmd++);
         if (!strcmp(cmd, "Quit"))
@@ -1630,7 +1724,8 @@ void help(char * cmd) {
                    "\n"
                    "Usage Example:\n"
                    "Help Enter\n\n");
-
+        else
+            printf("Function %s not found\n\n", cmd);
     }
 }
 
