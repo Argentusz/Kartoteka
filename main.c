@@ -40,29 +40,29 @@ typedef struct student_head {
 
 /** Called by User **/
 /* Enter New Nodes from Keyboard */
-void enter(head * hd, f_head * f_hd, char* cmd);
+char enter(head * hd, f_head * f_hd, char* cmd);
 /* Import Nodes from file */
-void import(head * hd, f_head * f_hd, char * cmd);
+boolean import(head * hd, f_head * f_hd, char * cmd);
 /* Save changes in Kartoteka Save file */
 void save(head * hd);
 /* Export Kartoteka to a CSV format file */
-void export(head * hd, char * cmd);
+boolean export(head * hd, char * cmd);
 /* Show List (Up to some max number if exists) */
 void show(head * hd, char * cmd);
 /* Change Some Node */
-void change(head * hd, f_head * f_hd, char * cmd);
+boolean change(head * hd, f_head * f_hd, char * cmd);
 /* Swap Two Nodes */
-void swap(head * hd, char * cmd);
+boolean swap(head * hd, char * cmd);
 /* Sort By Any Column */
-void sort(head * hd, char * cmd);
+boolean sort(head * hd, char * cmd);
 /* Show Nodes that meet the requirements */
-void filter(head* hd, char * cmd);
+boolean filter_by(head* hd, char * cmd);
 /* Delete Everything */
 void delete_all(head * hd, f_head * f_hd);
 /* Delete One Node */
-void delete(head * hd, char * cmd);
+boolean delete(head * hd, char * cmd);
 /* Delete Nodes that meet the requirements */
-void delete_by(head * hd, char * cmd);
+boolean delete_by(head * hd, char * cmd);
 /* Quick Access to List */
 void quick_look(head * hd);
 /* Documentation */
@@ -240,8 +240,9 @@ void UI_(head * hd, f_head * f_hd) {
 }
 
 boolean cmd_check_(char * cmd, head * hd, f_head * f_hd, boolean * saved) {
-    boolean q;
+    boolean q, canceled;
     q = 0;
+    canceled = 0;
     if(*cmd == '\0') {
         /* To prevent '&&' Quitting the Program */
     }
@@ -255,19 +256,28 @@ boolean cmd_check_(char * cmd, head * hd, f_head * f_hd, boolean * saved) {
     }
     else if(func_cmp_(cmd, "Enter")) {
         clear
-        enter(hd, f_hd, cmd);
-        printf("Done.\n");
-        *saved = 0;
-        clear
+        canceled = enter(hd, f_hd, cmd);
+        if(!canceled) {
+            clear
+            printf("Done.\n");
+            *saved = 0;
+        } else {
+            printf("Canceled.\n");
+        }
     }
     else if(func_cmp_(cmd, "Import")) {
-        import(hd, f_hd, cmd);
-        printf("Done.\n");
-        *saved = 0;
+        canceled = import(hd, f_hd, cmd);
+        if(!canceled) {
+            printf("Done.\n");
+            *saved = 0;
+        } else {
+            printf("Canceled.\n");
+        }
     }
     else if(func_cmp_(cmd, "Export")) {
-        export(hd, cmd);
-        printf("Done.\n");
+        canceled = export(hd, cmd);
+        if(!canceled) printf("Done.\n");
+        else printf("Canceled.\n");
     }
     else if(func_cmp_(cmd, "Delete All")) {
         delete_all(hd, f_hd);
@@ -275,35 +285,55 @@ boolean cmd_check_(char * cmd, head * hd, f_head * f_hd, boolean * saved) {
         *saved = 0;
     }
     else if(func_cmp_(cmd, "Delete By")) {
-        delete_by(hd, cmd);
-        printf("Done.\n");
-        *saved = 0;
+        canceled = delete_by(hd, cmd);
+        if(!canceled) {
+            printf("Done.\n");
+            *saved = 0;
+        } else {
+            printf("Canceled.\n");
+        }
     }
     else if(func_cmp_(cmd, "Delete")) {
-        delete(hd, cmd);
-        printf("Done.\n");
-        *saved = 0;
+        canceled = delete(hd, cmd);
+        if(!canceled) {
+            printf("Done.\n");
+            *saved = 0;
+        } else {
+            printf("Canceled.\n");
+        }
     }
     else if(func_cmp_(cmd, "Show")) {
         show(hd, cmd);
     }
     else if(func_cmp_(cmd, "Sort")) {
-        sort(hd, cmd);
-        printf("Done.\n");
-        *saved = 0;
+        canceled = sort(hd, cmd);
+        if(!canceled) {
+            printf("Done.\n");
+            *saved = 0;
+        } else {
+            printf("Canceled.\n");
+        }
     }
     else if(func_cmp_(cmd, "Change")) {
-        change(hd, f_hd, cmd);
-        printf("Done.\n");
-        saved = 0;
+        canceled = change(hd, f_hd, cmd);
+        if(!canceled) {
+            printf("Done.\n");
+            *saved = 0;
+        } else {
+            printf("Canceled.\n");
+        }
     }
     else if(func_cmp_(cmd, "Swap")) {
-        swap(hd, cmd);
-        printf("Done.\n");
-        saved = 0;
+        canceled = swap(hd, cmd);
+        if(!canceled) {
+            printf("Done.\n");
+            *saved = 0;
+        } else {
+            printf("Canceled.\n");
+        }
     }
     else if(func_cmp_(cmd, "Filter")) {
-        filter(hd, cmd);
+        filter_by(hd, cmd);
     }
     else if(func_cmp_(cmd, "Quick")) {
         quick_look(hd);
@@ -341,11 +371,13 @@ void save(head * hd) {
     }
 }
 
-void enter(head * hd, f_head * f_hd, char * cmd) {
+boolean enter(head * hd, f_head * f_hd, char * cmd) {
     char * mode, * temp, * yn;
+    boolean canceled;
     node * student;
     int i;
     mode = malloc(3);
+    canceled = 0;
     if(mode == NULL) {
         printf("fatal error: Unable to Allocate Memory (enter: mode)\n\n");
         exit(1);
@@ -448,9 +480,13 @@ void enter(head * hd, f_head * f_hd, char * cmd) {
             bgets(temp, 127, stdin);
         }
     }
+    if (*mode == 'a') {
+        canceled = 1;
+    }
+    return canceled;
 }
 
-void import(head * hd, f_head * f_hd, char * cmd) {
+boolean import(head * hd, f_head * f_hd, char * cmd) {
     FILE * fp = NULL;
     char * file_name, * line;
     boolean cancel;
@@ -493,9 +529,10 @@ void import(head * hd, f_head * f_hd, char * cmd) {
     }
 
     fclose(fp);
+    return cancel;
 }
 
-void export(head * hd, char * cmd) {
+boolean export(head * hd, char * cmd) {
     FILE * fp = NULL;
     char * file_name, * yn;
     node * temp;
@@ -567,6 +604,7 @@ void export(head * hd, char * cmd) {
         }
     }
     fclose(fp);
+    return cancel;
 }
 
 void quick_look(head * hd) {
@@ -625,12 +663,13 @@ void show(head * hd, char * cmd) {
     }
 }
 
-void change(head * hd, f_head * f_hd, char * cmd) {
+boolean change(head * hd, f_head * f_hd, char * cmd) {
     int no, num_len, i, line;
     char * mode, * temp, ** splitLine;
     node * student;
-
+    boolean cancel;
     mode = malloc(3);
+    cancel = 0;
     if(mode == NULL) {
         printf("fatal error: Unable to Allocate Memory (change: mode)\n\n");
         exit(1);
@@ -746,7 +785,11 @@ void change(head * hd, f_head * f_hd, char * cmd) {
                 }
             }
         }
-    } else if (no > hd->cnt) printf("error: This No is out of bounds\n");
+    } else {
+        if (no > hd->cnt) printf("error: This No is out of bounds\n");
+        cancel = 1;
+    }
+    return cancel;
 }
 
 void csv_line_parser_(head *hd, f_head* f_hd, char* line) {
@@ -821,9 +864,11 @@ void delete_all(head * hd, f_head * f_hd) {
     }
 }
 
-void delete(head * hd, char * cmd) {
+char delete(head * hd, char * cmd) {
     int no;
     node * student;
+    boolean cancel;
+    cancel = 0;
     /* Looking for Arguments in Command */
     if(*(cmd + 6) != '\0') {
         cmd += 6;
@@ -844,16 +889,21 @@ void delete(head * hd, char * cmd) {
         if (student == NULL) printf("error: Element with No %d not found\n", no);
         else delete_node_(hd, student);
     }
-    else if (no > hd->cnt) printf("error: This No is out of bounds\n");
+    else {
+        if (no > hd->cnt) printf("error: This No is out of bounds\n");
+        cancel = 1;
+    }
+    return cancel;
 }
 
-void delete_by(head* hd, char * cmd) {
+boolean delete_by(head* hd, char * cmd) {
     char column, how;
     char * line_value;
     int int_value;
     float float_value;
-    boolean done;
+    boolean done, cancel;
     done = 0;
+    cancel = 0;
     column = -3;
     /* Looking for Arguments in Command */
     if(*(cmd+9) != '\0') {
@@ -980,8 +1030,11 @@ void delete_by(head* hd, char * cmd) {
             if (how == 4) how = 1;
             int_value = ibgets(stdin);
             delete_int_(hd, column, how, int_value);
+        } else {
+            cancel = 1;
         }
     }
+    return cancel;
 }
 
 void delete_node_(head * hd, node * student) {
@@ -1105,15 +1158,16 @@ void delete_float_(head * hd, char column, char how, float value) {
     }
 }
 
-void filter(head* hd, char * cmd) {
+boolean filter_by(head* hd, char * cmd) {
     /* Operates Similar to a 'Delete By' function
      * (Would be too complicated and unreadable to use function pointers, but maybe?) */
     char column, how;
     char * line_value;
     int int_value;
     float float_value;
-    boolean done;
+    boolean done, cancel;
     done = 0;
+    cancel = 0;
     column = -3;
     if(*(cmd+6) != '\0') {
         for(cmd+=6; *cmd == ' '; cmd++);
@@ -1163,7 +1217,7 @@ void filter(head* hd, char * cmd) {
     }
     if(!done){
         while (column == -3) {
-            printf("Choose Column to filter\n"
+            printf("Choose Column to filter_by\n"
                    "0 - Cancel\n"
                    "1 - Name\n"
                    "2 - Faculty\n"
@@ -1204,7 +1258,7 @@ void filter(head* hd, char * cmd) {
         if (column < 0 && column != -4) {
             line_value = malloc(32);
             if(line_value == NULL) {
-                printf("fatal error: Unable to Allocate Memory (filter: line_value)\n\n");
+                printf("fatal error: Unable to Allocate Memory (filter_by: line_value)\n\n");
                 exit(1);
             }
             if (how != 1 && how != 4) printf("typo error: Can only check equality of strings (=/==)\n");
@@ -1226,9 +1280,11 @@ void filter(head* hd, char * cmd) {
             if (how == 4) how = 1;
             int_value = ibgets(stdin);
             filter_int_(hd, column, how, int_value);
-        }
+        } else cancel = 1;
     }
+    return cancel;
 }
+
 void filter_str_(head * hd, char* (*field)(node*), char how, char * value) {
     node * student;
     boolean printed;
@@ -1367,9 +1423,10 @@ void output_(node * student) {
            student->gia_results[0], student->gia_results[1], student->gia_results[2]);
 }
 
-void sort(head * hd, char * cmd) {
+char sort(head * hd, char * cmd) {
     char mode, ad;
-    mode = 0; ad = 0;
+    boolean cancel;
+    mode = 0; ad = 0; cancel = 0;
     /* Looking for arguments in Command */
     if(*(cmd+4) != '\0') {
         cmd += 4;
@@ -1408,12 +1465,12 @@ void sort(head * hd, char * cmd) {
         if (mode <= 0) mode -= 1;
         if(mode < -3 || mode > 7) { mode = 0; printf("typo error: column not found.\n"); }
     }
-    while(ad == 0 && mode != -3) {
+    while(ad == 0 && mode != -3 && ad != -3) {
         printf("How to sort?\n0 - Cancel\n1 - Ascending\n2 - Descending\n\nMode: ");
         ad = (char)ibgets(stdin);
-        if(ad > 2 || ad < 1) {printf("error: sort mode not found\n"); ad = 0;}
-        if(ad == 2) ad = -1;
         if(ad == 0) ad = -3;
+        else if(ad > 2 || ad < 0) {printf("error: sort mode not found\n"); ad = 0;}
+        else if(ad == 2) ad = -1;
     }
     if(ad != -3 && mode != -3) {
         if (mode > 0 && mode <= 7)
@@ -1425,6 +1482,8 @@ void sort(head * hd, char * cmd) {
         else
             printf("unknown error: Unknown operation mode of Sort (mode > 7 or mode < -3)\n");
     }
+    else cancel = 1;
+    return cancel;
 }
 
 void q_sort_(node * left, node * right, char mode, char ad) {
@@ -1507,12 +1566,12 @@ void swap_cpy_(node * temp0, node * temp1) {
 }
 
 
-void swap(head * hd, char * cmd) {
+boolean swap(head * hd, char * cmd) {
     int no1, no2;
     node * student1, * student2;
-    boolean err;
+    boolean err, cancel;
     no1 = no2 = 0;
-    err = 0;
+    err = 0; cancel = 0;
     /* Looking for Arguments in Command */
     if(*(cmd + 4) != '\0') {
         for(cmd+=4; *cmd == ' '; cmd++);
@@ -1538,25 +1597,30 @@ void swap(head * hd, char * cmd) {
     }
     /* If Arguments not found */
     if(err == 1 || no1 == 0 || no2== 0) {
-        while (no1 == 0) {
-            printf("Type no of first string to swap: ");
+        while (no1 == 0 && !cancel) {
+            printf("Type no of first string to swap (0 to cancel): ");
             no1 = ibgets(stdin);
-            if(no1 <= 0) printf("typo error: No should be a positive number\n");
+            if(no1 < 0) { printf("typo error: No should be a positive number\n"); no1 = 0; }
+            else if (no1 == 0) cancel = 1;
         }
-        while (no2 == 0) {
-            printf("Type no of second string to swap: ");
+        while (no2 == 0 && !cancel) {
+            printf("Type no of second string to swap (0 to cancel): ");
             no2 = ibgets(stdin);
-            if(no2 <= 0) printf("typo error: No should be a positive number\n");
+            if(no2 < 0) { printf("typo error: No should be a positive number\n"); no1 = 0; }
+            else if (no2 == 0) cancel = 1;
         }
     }
-    for(student1 = hd->first; student1 != NULL && student1->no != no1; student1 = student1->next);
-    if (student1 == NULL) {
-        printf("error: Element with No %d not found\n", no1);
-    } else {
-        for(student2 = hd->first; student2 != NULL && student2->no != no2; student2 = student2->next);
-        if (student2 == NULL) printf("error: Element with No %d not found\n", no2);
-        else swap_(student1, student2);
+    if(!cancel) {
+        for (student1 = hd->first; student1 != NULL && student1->no != no1; student1 = student1->next);
+        if (student1 == NULL) {
+            printf("error: Element with No %d not found\n", no1);
+        } else {
+            for (student2 = hd->first; student2 != NULL && student2->no != no2; student2 = student2->next);
+            if (student2 == NULL) printf("error: Element with No %d not found\n", no2);
+            else swap_(student1, student2);
+        }
     }
+    return cancel;
 }
 
 f_node * foreign_key_(f_head *f_hd, char* fac_name) {
