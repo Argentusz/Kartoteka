@@ -3,6 +3,7 @@
 #include <string.h>
 #define clear system("clear||@cls");
 #define COMMAND_LEN 256
+#define SAVE_FILE "kartoteka.csv"
 /* boolean here is a char type that is used to keep only 1 or 0 (for easier reading) */
 #define boolean char
 
@@ -42,6 +43,8 @@ typedef struct student_head {
 void enter(head * hd, f_head * f_hd, char* cmd);
 /* Import Nodes from file */
 void import(head * hd, f_head * f_hd, char * cmd);
+/* Save changes in Kartoteka Save file */
+void save(head * hd);
 /* Export Kartoteka to a CSV format file */
 void export(head * hd, char * cmd);
 /* Show List (Up to some max number if exists) */
@@ -79,7 +82,7 @@ void create_(head * hd, f_head * f_hd);
 /* User Interface */
 void UI_(head * hd, f_head * f_hd);
 /* Commands Distributor */
-boolean cmd_check_(char * cmd, head * hd, f_head * f_hd);
+boolean cmd_check_(char * cmd, head * hd, f_head * f_hd, boolean * saved);
 /* Looks if String is a First Substring */
 boolean func_cmp_(char * cmd, char * compare);
 /* Copy string (Works with Structure's pointers) */
@@ -128,8 +131,10 @@ char* striped(const char *string, char border);
 
 
 int main() {
+    char * line;
     f_head * f_hd;
     head * hd;
+    FILE * save;
     printf("Welcome to Kartoteka v1.0\n"
            "Kartoteka is an open-source project made by Maksim Trostin\n"
            "Kartoteka Source Code is licensed under the Creative Commons Zero v1.0 Universal\n\n"
@@ -143,8 +148,7 @@ int main() {
            "\nPlease, resize your window so that Kartoteka logo is readable and press Enter\n");
     getchar();
     clear
-
-    /* Allocating Memory */
+    /* Allocating Memory & Create dummies of heads */
     f_hd = (f_head*)malloc(sizeof(f_head));
     if(f_hd == NULL) {
         printf("fatal error: Unable to Allocate Memory (main: f_hd)\n\n");
@@ -156,8 +160,33 @@ int main() {
         exit(1);
     }
     create_(hd, f_hd);
+    /* Loading from Save File */
+    save = fopen(SAVE_FILE, "r+");
+    if(save == NULL) {
+        printf("warning: %s not found.\nCreating an empty one.\n\n", SAVE_FILE);
+        fclose(save);
+        save = fopen(SAVE_FILE, "w");
+        if(save == NULL) {
+            printf("fatal error: Can not access and create %s file", SAVE_FILE);
+            exit(1);
+        }
+        fclose(save);
+        save = fopen(SAVE_FILE, "r+");
+        if(save == NULL) {
+            printf("fatal error: Can not access %s file", SAVE_FILE);
+            exit(1);
+        }
+    } else {
+        line = malloc(128);
+        while (bgets(line, 128, save) != NULL) {
+            csv_line_parser_(hd, f_hd, line);
+        }
+        free(line);
+    }
+
     /* Launching User Interface */
     UI_(hd, f_hd);
+    /* Free Allocated memory before Quitting */
     free(hd);
     free(f_hd);
     return 0;
@@ -167,7 +196,7 @@ void UI_(head * hd, f_head * f_hd) {
     char * cmd;
     char ** cmd_arr;
     int ampersands, i;
-    boolean quit, q;
+    boolean quit, q, saved;
     quit = 0;
     cmd = malloc(COMMAND_LEN);
     if(cmd == NULL) {
@@ -175,6 +204,7 @@ void UI_(head * hd, f_head * f_hd) {
         exit(1);
     }
     quick_look(hd);
+    saved = 1;
     while (!quit) {
         printf("\nType Help to see what Kartoteka can do\n"
                "Type Quit to quit\n\n");
@@ -183,23 +213,33 @@ void UI_(head * hd, f_head * f_hd) {
         ampersands = strcount(cmd, "&");
         /* Only One Command */
         if (ampersands == 0)
-            quit = cmd_check_(striped(cmd, ' '), hd, f_hd);
+            quit = cmd_check_(striped(cmd, ' '), hd, f_hd, &saved);
         else {
             /* A Bunch of commands */
             cmd_arr = split(cmd, '&');
             for(i = 0; i <= ampersands; i++) {
-                q = cmd_check_(striped(cmd_arr[i], ' '), hd, f_hd);
+                q = cmd_check_(striped(cmd_arr[i], ' '), hd, f_hd, &saved);
                 /* If Quit Command is in the Middle of a Command */
                 if(q) quit = 1;
             }
             free(cmd_arr);
+        }
+        if(quit == 1) {
+            if(saved == 0) {
+                printf("Looks like your Kartoteka has changed since last save.\nAre you sure you want to Quit? (Y - Yes, C - Cancel, S - Save and Quit)\n(Y/C/S): ");
+                bgets(cmd, 4, stdin);
+                if(*cmd != 'Y') {
+                    if(*cmd == 'S') save(hd);
+                    else quit = 0;
+                }
+            }
         }
     }
     free(cmd);
     printf("Thank You for using Kartoteka\n");
 }
 
-boolean cmd_check_(char * cmd, head * hd, f_head * f_hd) {
+boolean cmd_check_(char * cmd, head * hd, f_head * f_hd, boolean * saved) {
     boolean q;
     q = 0;
     if(*cmd == '\0') {
@@ -208,15 +248,22 @@ boolean cmd_check_(char * cmd, head * hd, f_head * f_hd) {
     else if(func_cmp_(cmd, "Quit")) {
         q = 1;
     }
+    else if(func_cmp_(cmd, "Save")) {
+        save(hd);
+        printf("Done.\n");
+        *saved = 1;
+    }
     else if(func_cmp_(cmd, "Enter")) {
         clear
         enter(hd, f_hd, cmd);
         printf("Done.\n");
+        *saved = 0;
         clear
     }
     else if(func_cmp_(cmd, "Import")) {
         import(hd, f_hd, cmd);
         printf("Done.\n");
+        *saved = 0;
     }
     else if(func_cmp_(cmd, "Export")) {
         export(hd, cmd);
@@ -225,14 +272,17 @@ boolean cmd_check_(char * cmd, head * hd, f_head * f_hd) {
     else if(func_cmp_(cmd, "Delete All")) {
         delete_all(hd, f_hd);
         printf("Done.\n");
+        *saved = 0;
     }
     else if(func_cmp_(cmd, "Delete By")) {
         delete_by(hd, cmd);
         printf("Done.\n");
+        *saved = 0;
     }
     else if(func_cmp_(cmd, "Delete")) {
         delete(hd, cmd);
         printf("Done.\n");
+        *saved = 0;
     }
     else if(func_cmp_(cmd, "Show")) {
         show(hd, cmd);
@@ -240,14 +290,17 @@ boolean cmd_check_(char * cmd, head * hd, f_head * f_hd) {
     else if(func_cmp_(cmd, "Sort")) {
         sort(hd, cmd);
         printf("Done.\n");
+        *saved = 0;
     }
     else if(func_cmp_(cmd, "Change")) {
         change(hd, f_hd, cmd);
         printf("Done.\n");
+        saved = 0;
     }
     else if(func_cmp_(cmd, "Swap")) {
         swap(hd, cmd);
         printf("Done.\n");
+        saved = 0;
     }
     else if(func_cmp_(cmd, "Filter")) {
         filter(hd, cmd);
@@ -268,6 +321,24 @@ boolean cmd_check_(char * cmd, head * hd, f_head * f_hd) {
         else printf("Type 'Help' to see commands available\n\n");
     }
     return q;
+}
+
+void save(head * hd) {
+    node * temp;
+    FILE * save;
+    save = fopen(SAVE_FILE, "w");
+    if(save == NULL) {
+        printf("fatal error: Can not neither access neither create %s (aka save_file) file", SAVE_FILE);
+        exit(1);
+    }
+    for (temp = hd->first; temp != NULL; temp = temp->next) {
+        fprintf(save, "%s;%s;%d;%d;%.3f;%.2f;%d;%d;%d",
+                temp->name,
+                temp->faculty->name, temp->age, temp->id,
+                temp->avg_score, temp->completion_rate,
+                temp->gia_results[0], temp->gia_results[1], temp->gia_results[2]);
+        if (temp->next != NULL) fprintf(save, "\n");
+    }
 }
 
 void enter(head * hd, f_head * f_hd, char * cmd) {
@@ -481,13 +552,17 @@ void export(head * hd, char * cmd) {
 
         if (!cancel) {
             fp = fopen(file_name, "w");
-            for (temp = hd->first, i = 0; temp != NULL; temp = temp->next, i++) {
-                fprintf(fp, "%s;%s;%d;%d;%.3f;%.2f;%d;%d;%d",
-                        temp->name,
-                        temp->faculty->name, temp->age, temp->id,
-                        temp->avg_score, temp->completion_rate,
-                        temp->gia_results[0], temp->gia_results[1], temp->gia_results[2]);
-                if (temp->next != NULL) fprintf(fp, "\n");
+            if (fp == NULL) {
+                printf("error: Can not neither access neither create %s file", file_name);
+            } else {
+                for (temp = hd->first, i = 0; temp != NULL; temp = temp->next, i++) {
+                    fprintf(fp, "%s;%s;%d;%d;%.3f;%.2f;%d;%d;%d",
+                            temp->name,
+                            temp->faculty->name, temp->age, temp->id,
+                            temp->avg_score, temp->completion_rate,
+                            temp->gia_results[0], temp->gia_results[1], temp->gia_results[2]);
+                    if (temp->next != NULL) fprintf(fp, "\n");
+                }
             }
         }
     }
@@ -1756,6 +1831,9 @@ void help(char * cmd) {
         if (!strcmp(cmd, "Quit"))
             printf("Quit function is used to terminate Kartoteka\n"
                    "Just type 'Quit' if you had enough.\n\n");
+        else if(func_cmp_(cmd, "Save")) {
+            printf("Save function is used to save your Kartoteka and access it on the next start of the program\n\n");
+        }
         else if (func_cmp_(cmd, "Enter"))
             printf("Enter function is used to fill Kartoteka database from keyboard.\n"
                    "You can fill with 'Line by Line' mode or 'CSV' mode\n"
