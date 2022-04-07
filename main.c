@@ -345,7 +345,7 @@ boolean cmd_check_(char * cmd, head * hd, f_head * f_hd, boolean * saved) {
         help(cmd);
     }
     else if(func_cmp_(cmd, "Clear")) clear
-    else if(func_cmp_(cmd, "Source Code")) {
+    else if(func_cmp_(cmd, "Source")) {
         source_code();
     }
     else {
@@ -357,7 +357,7 @@ boolean cmd_check_(char * cmd, head * hd, f_head * f_hd, boolean * saved) {
             func_cmp_(cmd, "delete by") || func_cmp_(cmd, "delete") || func_cmp_(cmd, "show") ||
             func_cmp_(cmd, "sort") || func_cmp_(cmd, "change") || func_cmp_(cmd, "swap") ||
             func_cmp_(cmd, "filter") || func_cmp_(cmd, "quick") || func_cmp_(cmd, "help") ||
-            func_cmp_(cmd, "clear") || func_cmp_(cmd, "Source Code") ) {
+            func_cmp_(cmd, "clear") || func_cmp_(cmd, "source") ) {
             for(g = cmd; *g != ' ' && *g != '\0'; g++);
             *g = '\0';
             *cmd -= 32;
@@ -1908,7 +1908,7 @@ void help(char * cmd) {
                "Quick                            - to quick look data in Kartoteka\n"
                "Clear                            - to clear the screen\n"
                "<Command> & <Command> . . .      - to deploy several Commands\n"
-               "Source Code                      - to show a link on a source code.\n"
+               "Source                           - to show a link on a source code.\n"
                "Help <Command>                   - for documentation\n\n"
                "Use Help <Command> for specific Function documentation\n\n");
     else {
@@ -2026,7 +2026,7 @@ void help(char * cmd) {
                    "\n"
                    "Usage Example:\n"
                    "Help Enter\n\n");
-        else if(func_cmp_(cmd, "Source Code"))
+        else if(func_cmp_(cmd, "Source"))
             source_code();
         else
             printf("Function %s not found\n\n", cmd);
