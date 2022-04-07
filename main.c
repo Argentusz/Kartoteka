@@ -348,12 +348,19 @@ boolean cmd_check_(char * cmd, head * hd, f_head * f_hd, boolean * saved) {
         printf("typo error: Command not found: %s\n", cmd);
         printf("Type 'Help' to see commands available\n");
         lower_str_(cmd);
-        if( func_cmp_(cmd, "quit") || func_cmp_(cmd, "save") || func_cmp_(cmd, "enter") ||
-            func_cmp_(cmd, "import") || func_cmp_(cmd, "export") || func_cmp_(cmd, "delete all") ||
-            func_cmp_(cmd, "delete by") || func_cmp_(cmd, "delete") || func_cmp_(cmd, "show") ||
-            func_cmp_(cmd, "sort") || func_cmp_(cmd, "change") || func_cmp_(cmd, "swap") ||
-            func_cmp_(cmd, "filter") || func_cmp_(cmd, "quick") || func_cmp_(cmd, "help") ||
-            func_cmp_(cmd, "clear") || func_cmp_(cmd, "source") ) {
+        if(func_cmp_(cmd, "delete all") || func_cmp_(cmd, "delete by")) {
+            *cmd -= 32;
+            for(g = cmd; *g != ' ' && *g != '\0'; g++);
+            g++; g-= 32;
+            for(; *g != ' ' && *g != '\0'; g++);
+            *g = '\0';
+            printf("Maybe You Meant '%s'?\n\n", cmd);
+        }
+        else if( func_cmp_(cmd, "quit") || func_cmp_(cmd, "save") || func_cmp_(cmd, "enter") ||
+            func_cmp_(cmd, "import") || func_cmp_(cmd, "export") || func_cmp_(cmd, "delete") ||
+            func_cmp_(cmd, "show") || func_cmp_(cmd, "sort") || func_cmp_(cmd, "change") ||
+            func_cmp_(cmd, "swap") || func_cmp_(cmd, "filter") || func_cmp_(cmd, "quick") ||
+            func_cmp_(cmd, "help") || func_cmp_(cmd, "clear") || func_cmp_(cmd, "source") ) {
             for(g = cmd; *g != ' ' && *g != '\0'; g++);
             *g = '\0';
             *cmd -= 32;
