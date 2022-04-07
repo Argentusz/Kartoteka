@@ -173,11 +173,6 @@ int main() {
             exit(1);
         }
         fclose(save);
-        save = fopen(SAVE_FILE, "r+");
-        if(save == NULL) {
-            printf("fatal error: Can not access %s file", SAVE_FILE);
-            exit(1);
-        }
     } else {
         line = malloc(128);
         while (bgets(line, 128, save) != NULL) {
@@ -185,6 +180,7 @@ int main() {
         }
         free(line);
     }
+    fclose(save);
 
     /* Launching User Interface */
     UI_(hd, f_hd);
