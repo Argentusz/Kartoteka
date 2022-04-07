@@ -9,38 +9,38 @@
 
 /* Faculties Doubly linked list */
 typedef struct fac_struct {
-    char* name;
+    char * name;
     struct fac_struct* next;
     struct fac_struct* prev;
 } f_node;
 typedef struct fac_head {
-    struct fac_struct* first;
-    struct fac_struct* last;
+    struct fac_struct * first;
+    struct fac_struct * last;
     int cnt;
 } f_head;
 /* Students Doubly linked list */
 typedef struct student_struct {
-    char* name;
-    f_node* faculty;
+    char * name;
+    f_node * faculty;
     int no;
     int age;
     int id;
     float avg_score;
     float completion_rate;
     int gia_results[3];
-    struct student_struct *next;
-    struct student_struct *prev;
+    struct student_struct * next;
+    struct student_struct * prev;
 } node;
 typedef struct student_head {
-    struct student_struct* first;
-    struct student_struct* last;
+    struct student_struct * first;
+    struct student_struct * last;
     int cnt;
 } head;
 
 
 /** Called by User **/
 /* Enter New Nodes from Keyboard */
-char enter(head * hd, f_head * f_hd, char* cmd);
+char enter(head * hd, f_head * f_hd, char * cmd);
 /* Import Nodes from file */
 boolean import(head * hd, f_head * f_hd, char * cmd);
 /* Save changes in Kartoteka Save file */
@@ -72,9 +72,9 @@ void source_code();
 
 /** Internal Functions **/
 /* Parse Line and Append to a List */
-void csv_line_parser_(head *hd, f_head* f_hd, char* line);
+void csv_line_parser_(head *hd, f_head* f_hd, char * line);
 /* Returns Address of Faculty with a Given Name */
-f_node * foreign_key_(f_head *f_hd, char* fac_name);
+f_node * foreign_key_(f_head *f_hd, char * fac_name);
 /* Creates New Faculty */
 void make_new_f_(f_head * f_hd, char * node_name);
 /* Create Dummies of head and f_head */
@@ -86,36 +86,38 @@ boolean cmd_check_(char * cmd, head * hd, f_head * f_hd, boolean * saved);
 /* Looks if String is a First Substring */
 boolean func_cmp_(char * cmd, char * compare);
 /* Copy string (Works with Structure's pointers) */
-char* just_copy_(const char* st);
+char * just_copy_(const char * st);
 /* Update No's of a List */
 void new_no_(head * hd);
 /* Delete Given Node */
 void delete_node_(head * hd, node * student);
 /* Delete Nodes that meet the requirements (for str, int, float)*/
-void delete_str_(head * hd, char* (*field)(node*), char how, char * value);
+void delete_str_(head * hd, char * (*field)(node*), char how, char * value);
 void delete_int_(head * hd, char column, char how, int value);
 void delete_float_(head * hd, char column, char how, float value);
 /* Output Nodes that meet the requirements (for str, int, float)*/
 void filter_int_(head * hd, char column, char how, int value);
 void filter_float_(head * hd, char column, char how, float value);
-void filter_str_(head * hd, char* (*field)(node*), char how, char * value);
+void filter_str_(head * hd, char * (*field)(node*), char how, char * value);
 /* Swaps Two Nodes */
 void swap_(node * temp0, node * temp1);
 /* Copy a Data of Node */
 void swap_cpy_(node * temp0, node * temp1);
 /* Quick Sort List for Numerous and String */
 void q_sort_(node * left, node * right, char mode, char ad);
-void str_q_sort_(node * left, node * right, char* (*field)(node*), char ad);
+void str_q_sort_(node * left, node * right, char * (*field)(node*), char ad);
 /* Return Name of a Node */
-char* get_name_(node * student);
+char * get_name_(node * student);
 /* Return Faculty name of a Node */
-char* get_fac_name_(node * student);
+char * get_fac_name_(node * student);
 /* Print Node */
 void output_(node * student);
+/* Returns string with all lowercase */
+char * lower_str_(char * string);
 
-/** BFuncs **/
+/** BFuncs (written while ago) **/
 /* Read String from a Keyboard */
-char* bgets(char *st, int len, FILE *fp);
+char * bgets(char *st, int len, FILE *fp);
 /* Read Integer from a Keyboard */
 int ibgets(FILE *fp);
 /* Read Float from a Keyboard */
@@ -123,11 +125,11 @@ float fbgets(FILE *fp);
 /* Read Char (as a number, not a symbol) */
 char cbgets(FILE * fp);
 /* Split String by a Separator */
-char** split(char *line, char sep);
+char ** split(char *line, char sep);
 /* Counts Amount of a Substrings in a String */
-int strcount(char* in, char* substring);
+int strcount(char * in, char * substring);
 /* Deletes a Border Symbol at the beginning and at the end of the String */
-char* striped(const char *string, char border);
+char * striped(const char *string, char border);
 
 
 int main() {
@@ -240,6 +242,7 @@ void UI_(head * hd, f_head * f_hd) {
 }
 
 boolean cmd_check_(char * cmd, head * hd, f_head * f_hd, boolean * saved) {
+    char * g;
     boolean q, canceled;
     q = 0;
     canceled = 0;
@@ -347,8 +350,20 @@ boolean cmd_check_(char * cmd, head * hd, f_head * f_hd, boolean * saved) {
     }
     else {
         printf("typo error: Command not found: %s\n", cmd);
-        if(cmd[0] > 'Z' || cmd[0] < 'A') printf("Note that all commands start with capital letter\n");
-        else printf("Type 'Help' to see commands available\n\n");
+        printf("Type 'Help' to see commands available\n");
+        lower_str_(cmd);
+        if( func_cmp_(cmd, "quit") || func_cmp_(cmd, "save") || func_cmp_(cmd, "enter") ||
+            func_cmp_(cmd, "import") || func_cmp_(cmd, "export") || func_cmp_(cmd, "delete all") ||
+            func_cmp_(cmd, "delete by") || func_cmp_(cmd, "delete") || func_cmp_(cmd, "show") ||
+            func_cmp_(cmd, "sort") || func_cmp_(cmd, "change") || func_cmp_(cmd, "swap") ||
+            func_cmp_(cmd, "filter") || func_cmp_(cmd, "quick") || func_cmp_(cmd, "help") ||
+            func_cmp_(cmd, "clear") || func_cmp_(cmd, "Source Code") ) {
+            for(g = cmd; *g != ' ' && *g != '\0'; g++);
+            *g = '\0';
+            *cmd -= 32;
+            printf("Maybe You Meant '%s'?\n\n", cmd);
+        }
+        else printf("\n");
     }
     return q;
 }
@@ -792,7 +807,7 @@ boolean change(head * hd, f_head * f_hd, char * cmd) {
     return cancel;
 }
 
-void csv_line_parser_(head *hd, f_head* f_hd, char* line) {
+void csv_line_parser_(head *hd, f_head* f_hd, char * line) {
     int j;
     node *db, *temp;
     char **splitLine;
@@ -1060,7 +1075,7 @@ void delete_node_(head * hd, node * student) {
     new_no_(hd);
 }
 
-void delete_str_(head * hd, char* (*field)(node*), char how, char * value) {
+void delete_str_(head * hd, char * (*field)(node*), char how, char * value) {
     node * student;
     boolean printed;
     printed = 0;
@@ -1285,7 +1300,7 @@ boolean filter_by(head* hd, char * cmd) {
     return cancel;
 }
 
-void filter_str_(head * hd, char* (*field)(node*), char how, char * value) {
+void filter_str_(head * hd, char * (*field)(node*), char how, char * value) {
     node * student;
     boolean printed;
     printed = 0;
@@ -1511,10 +1526,10 @@ void q_sort_(node * left, node * right, char mode, char ad) {
 }
 
 /* To reach both student->name and student->faculty->name in one function */
-char* get_name_(node * student) { return student->name; }
-char* get_fac_name_(node * student) { return student->faculty->name; }
+char * get_name_(node * student) { return student->name; }
+char * get_fac_name_(node * student) { return student->faculty->name; }
 
-void str_q_sort_(node * left, node * right, char* (*field)(node*), char ad) {
+void str_q_sort_(node * left, node * right, char * (*field)(node*), char ad) {
     node * last, * current;
     if (left != right) {
         if (left->next == right) {
@@ -1623,7 +1638,7 @@ boolean swap(head * hd, char * cmd) {
     return cancel;
 }
 
-f_node * foreign_key_(f_head *f_hd, char* fac_name) {
+f_node * foreign_key_(f_head *f_hd, char * fac_name) {
     f_node * node, * res;
     boolean found;
     found = 0;
@@ -1664,9 +1679,9 @@ void make_new_f_(f_head * f_hd, char * node_name) {
     f_hd->cnt++;
 }
 
-char** split(char *line, const char sep) {
+char ** split(char * line, const char sep) {
     int separators_in_line, i, k, m;
-    char** result_array = NULL;
+    char ** result_array = NULL;
     /* Looking amount of separators for Memory Allocation */
     for (i = 0, separators_in_line = 0; i < strlen(line); i++)
         if(line[i] == sep) separators_in_line++;
@@ -1703,9 +1718,9 @@ char** split(char *line, const char sep) {
     return result_array;
 }
 
-char* bgets(char *st, int const len, FILE *fp) {
+char * bgets(char *st, int const len, FILE *fp) {
     unsigned long str_len;
-    char* err;
+    char * err;
     err = fgets(st, len, fp);
     /* Getting rid of Possible \r\n not to think about them */
     str_len = strlen(st);
@@ -1730,7 +1745,7 @@ int ibgets(FILE *fp) {
 }
 
 float fbgets(FILE *fp) {
-    char* st;
+    char * st;
     /* Max float digit counter is 31 */
     st = malloc(32);
     if(st == NULL) {
@@ -1741,7 +1756,7 @@ float fbgets(FILE *fp) {
 }
 
 char cbgets(FILE * fp) {
-    char* st;
+    char * st;
     /* Max char is 3 digit long */
     st = malloc(4);
     if(st == NULL) {
@@ -1763,10 +1778,10 @@ boolean func_cmp_(char * cmd, char * compare) {
     return res;
 }
 
-int strcount(char* in, char* substring) {
+int strcount(char * in, char * substring) {
     int count;
     unsigned long substring_len;
-    char* st0;
+    char * st0;
     count = 0;
     substring_len = strlen(substring);
     /* Looking for substring in String */
@@ -1780,7 +1795,7 @@ int strcount(char* in, char* substring) {
     return count;
 }
 
-char* striped(const char *string, char border) {
+char * striped(const char *string, char border) {
     unsigned int i, j, k, k1, string_len;
     char *result;
     string_len = strlen(string);
@@ -1842,7 +1857,15 @@ void create_(head * hd, f_head * f_hd) {
     f_hd->last = NULL;
 }
 
-char* just_copy_(const char* st) {
+char * lower_str_(char * string) {
+    char * gol;
+    for(gol = string; *gol != '\0'; gol++) {
+        if(*gol <= 'Z' && *gol >= 'A') *gol += 32;
+    }
+    return gol;
+}
+
+char * just_copy_(const char * st) {
     char * res;
     unsigned long len, i;
     /* strcpy() from string.h does not like pointers to a structure member in some cases */
