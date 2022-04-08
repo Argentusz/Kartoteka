@@ -104,8 +104,8 @@ void swap_(node * temp0, node * temp1);
 /* Copy a Data of Node */
 void swap_cpy_(node * temp0, node * temp1);
 /* Quick Sort List for Numerous and String */
-void q_sort_(node * left, node * right, char mode, char ad);
-void str_q_sort_(node * left, node * right, char * (*field)(node*), char ad);
+void q_sort_(node * left, node * right, signed char mode, signed char ad);
+void str_q_sort_(node * left, node * right, char * (*field)(node*), signed char ad);
 /* Return Name of a Node */
 char * get_name_(node * student);
 /* Return Faculty name of a Node */
@@ -166,7 +166,6 @@ int main() {
     save = fopen(SAVE_FILE, "r+");
     if(save == NULL) {
         printf("warning: %s not found.\nCreating an empty one.\n\n", SAVE_FILE);
-        fclose(save);
         save = fopen(SAVE_FILE, "w");
         if(save == NULL) {
             printf("fatal error: Can not access and create %s file", SAVE_FILE);
@@ -179,8 +178,8 @@ int main() {
             csv_line_parser_(hd, f_hd, line);
         }
         free(line);
+        fclose(save);
     }
-    fclose(save);
 
     /* Launching User Interface */
     UI_(hd, f_hd);
@@ -414,9 +413,9 @@ boolean enter(head * hd, f_head * f_hd, char * cmd) {
     while (*mode == 0) {
         printf("How would you like to print data?\n1 - Line by line\n2 - CSV Format\n0 - Cancel\n\n");
         bgets(mode, 5, stdin);
-        if (*mode == '1') *mode = 'l';
-        else if (*mode == '2') *mode = 'c';
-        else if (*mode == '0') *mode = 'a';
+        if (*mode == '1' && *(mode + 1) == 0) *mode = 'l';
+        else if (*mode == '2' && *(mode + 1) == 0) *mode = 'c';
+        else if (*mode == '0' && *(mode + 1) == 0) *mode = 'a';
         else *mode = 0;
         if (*mode == 0) printf("typo error: Unexpected input. Write only '1', '2' or '0'.\n");
         fflush(stdin);
@@ -516,7 +515,7 @@ boolean import(head * hd, f_head * f_hd, char * cmd) {
     }
     /* Looking For Arguments in Command */
     if(*(cmd+6) != '\0') {
-        cmd += 7;
+        for(cmd += 6; *cmd == ' '; cmd++);
         file_name = just_copy_(cmd);
     } else {
         /* If Arguments not found */
@@ -545,9 +544,9 @@ boolean import(head * hd, f_head * f_hd, char * cmd) {
         while (bgets(line, 128, fp) != NULL) {
             csv_line_parser_(hd, f_hd, line);
         }
+        fclose(fp);
     }
 
-    fclose(fp);
     return cancel;
 }
 
@@ -579,7 +578,7 @@ boolean export(head * hd, char * cmd) {
         }
         /* Looking For Arguments in Command */
         if (*(cmd + 6) != '\0') {
-            cmd += 7;
+            for(cmd += 6; *cmd == ' '; cmd++);
             file_name = just_copy_(cmd);
         } else {
             /* If Arguments not found */
@@ -603,8 +602,8 @@ boolean export(head * hd, char * cmd) {
                    "Are you sure you want to continue? (Y/N): ", file_name);
             bgets(yn, 11, stdin);
             if ((*yn == 'Y' || *yn == 'y') && *(yn + 1) == '\0') cancel = 0;
+            fclose(fp);
         }
-        fclose(fp);
 
         if (!cancel) {
             fp = fopen(file_name, "w");
@@ -619,10 +618,11 @@ boolean export(head * hd, char * cmd) {
                             temp->gia_results[0], temp->gia_results[1], temp->gia_results[2]);
                     if (temp->next != NULL) fprintf(fp, "\n");
                 }
+                fclose(fp);
             }
         }
     }
-    fclose(fp);
+
     return cancel;
 }
 
@@ -654,7 +654,7 @@ void show(head * hd, char * cmd) {
     maks = 0;
     /* Looking For Arguments in Command */
     if(*(cmd+4) != '\0') {
-        st = cmd + 5;
+        for(st = cmd + 4; *st == ' '; st++);
         if(*st > '9' || *st < '0')
             while (maks == 0) {
                 printf("typo error: Argument of Show function should be a number.\n"
@@ -785,7 +785,7 @@ boolean change(head * hd, f_head * f_hd, char * cmd) {
                     if(strcount(temp, ";") != 8) {
                         printf("typo error: Wrong Amount of Members in CSV\n"
                                "Input Should be something like 'one;two;3;4;5;6;7;8;9'\n"
-                               "Type Stop to finish\n");
+                               "\n");
                     } else {
                         splitLine = split(temp, ';');
                         if (splitLine == NULL) {
@@ -1443,7 +1443,7 @@ void output_(node * student) {
 }
 
 char sort(head * hd, char * cmd) {
-    char mode, ad;
+    signed char mode, ad;
     boolean cancel;
     mode = 0; ad = 0; cancel = 0;
     /* Looking for arguments in Command */
@@ -1505,7 +1505,7 @@ char sort(head * hd, char * cmd) {
     return cancel;
 }
 
-void q_sort_(node * left, node * right, char mode, char ad) {
+void q_sort_(node * left, node * right, signed char mode, signed char ad) {
     node * last, * current;
     if (left != right) {
         if (left->next == right) {
@@ -1533,7 +1533,7 @@ void q_sort_(node * left, node * right, char mode, char ad) {
 char * get_name_(node * student) { return student->name; }
 char * get_fac_name_(node * student) { return student->faculty->name; }
 
-void str_q_sort_(node * left, node * right, char * (*field)(node*), char ad) {
+void str_q_sort_(node * left, node * right, char * (*field)(node*), signed char ad) {
     node * last, * current;
     if (left != right) {
         if (left->next == right) {
@@ -1725,17 +1725,18 @@ char ** split(char * line, const char sep) {
 
 char * bgets(char *st, int const len, FILE *fp) {
     unsigned long str_len;
-    char * err;
-    err = fgets(st, len, fp);
+    st = fgets(st, len, fp);
     /* Getting rid of Possible \r\n not to think about them */
-    str_len = strlen(st);
-    if (st[str_len - 1] == '\n') {
-        if (st[str_len - 2] == '\r')
-            st[str_len - 2] = '\0';
-        else
-            st[str_len - 1] = '\0';
+    if(st != NULL) {
+        str_len = strlen(st);
+        if (st[str_len - 1] == '\n') {
+            if (st[str_len - 2] == '\r')
+                st[str_len - 2] = '\0';
+            else
+                st[str_len - 1] = '\0';
+        }
     }
-    return err;
+    return st;
 }
 
 int ibgets(FILE *fp) {
