@@ -777,6 +777,7 @@ boolean change(head * hd, f_head * f_hd, char * cmd) {
                     free(temp);
                 } else if (*mode == 'c') {
                     /* CSV Mode */
+                    printf("Enter One CSV Kartoteka line.\n");
                     temp = malloc(128);
                     if(temp == NULL) {
                         printf("fatal error: Unable to Allocate Memory (change: temp)\n\n");
