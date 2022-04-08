@@ -1905,7 +1905,7 @@ void help(char * cmd) {
                "Import <file name>               - to fill Kartoteka from file\n"
                "Export <file name>               - to make file from Kartoteka data\n"
                "Show <max amount>                - to show up to positive max amount of lines\n"
-               "Change <No>                      - to change line #N\n"
+               "Change <No> <csv/lbl>            - to change line #N from keyboard\n"
                "Swap <No1> <No2>                 - to swap lines with no N1 and N2\n"
                "Sort <Column> <a/d>              - to sort column ascending/descending\n"
                "Filter <Column> <(how)value>     - to show all lines with necessary value\n"
