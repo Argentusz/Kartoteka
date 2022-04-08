@@ -92,13 +92,13 @@ void new_no_(head * hd);
 /* Delete Given Node */
 void delete_node_(head * hd, node * student);
 /* Delete Nodes that meet the requirements (for str, int, float)*/
-void delete_str_(head * hd, char * (*field)(node*), char how, char * value);
-void delete_int_(head * hd, char column, char how, int value);
-void delete_float_(head * hd, char column, char how, float value);
+void delete_str_(head * hd, char * (*field)(node*), int how, char * value);
+void delete_int_(head * hd, int column, int how, int value);
+void delete_float_(head * hd, int column, int how, float value);
 /* Output Nodes that meet the requirements (for str, int, float)*/
-void filter_int_(head * hd, char column, char how, int value);
-void filter_float_(head * hd, char column, char how, float value);
-void filter_str_(head * hd, char * (*field)(node*), char how, char * value);
+void filter_int_(head * hd, int column, int how, int value);
+void filter_float_(head * hd, int column, int how, float value);
+void filter_str_(head * hd, char * (*field)(node*), int how, char * value);
 /* Swaps Two Nodes */
 void swap_(node * temp0, node * temp1);
 /* Copy a Data of Node */
@@ -351,7 +351,7 @@ boolean cmd_check_(char * cmd, head * hd, f_head * f_hd, boolean * saved) {
         if(func_cmp_(cmd, "delete all") || func_cmp_(cmd, "delete by")) {
             *cmd -= 32;
             for(g = cmd; *g != ' ' && *g != '\0'; g++);
-            g++; g-= 32;
+            g++; *g-= 32;
             for(; *g != ' ' && *g != '\0'; g++);
             *g = '\0';
             printf("Maybe You Meant '%s'?\n\n", cmd);
@@ -394,12 +394,13 @@ boolean enter(head * hd, f_head * f_hd, char * cmd) {
     boolean canceled;
     node * student;
     int i;
-    mode = malloc(3);
-    canceled = 0;
+    mode = malloc(6);
     if(mode == NULL) {
         printf("fatal error: Unable to Allocate Memory (enter: mode)\n\n");
         exit(1);
     }
+    *mode = 0;
+    canceled = 0;
     /* Looking For Arguments in Command */
     if (*(cmd+5) != '\0') {
         cmd += 5;
@@ -412,7 +413,7 @@ boolean enter(head * hd, f_head * f_hd, char * cmd) {
     /* If Arguments not found */
     while (*mode == 0) {
         printf("How would you like to print data?\n1 - Line by line\n2 - CSV Format\n0 - Cancel\n\n");
-        bgets(mode, 2, stdin);
+        bgets(mode, 5, stdin);
         if (*mode == '1') *mode = 'l';
         else if (*mode == '2') *mode = 'c';
         else if (*mode == '0') *mode = 'a';
@@ -915,7 +916,7 @@ char delete(head * hd, char * cmd) {
 }
 
 boolean delete_by(head* hd, char * cmd) {
-    char column, how;
+    int column, how;
     char * line_value;
     int int_value;
     float float_value;
@@ -996,7 +997,7 @@ boolean delete_by(head* hd, char * cmd) {
                    "8 - GIA 1\n"
                    "9 - GIA 2\n"
                    "10 - GIA 3\n\nColumn: ");
-            column = cbgets(stdin);
+            column = ibgets(stdin);
             if (column == 0) column = -4;
             else if (column >= 1 && column <= 10) column -= 3;
             else {
@@ -1014,7 +1015,7 @@ boolean delete_by(head* hd, char * cmd) {
                    "4 - >\n"
                    "5 - >=\n"
                    "6 - ==\n\nRelation: ");
-            how = cbgets(stdin);
+            how = ibgets(stdin);
             if (how == 0) column = -4;
             else if (how >= 1 && how <= 2) how -= 3;
             else if (how >= 3 && how <= 6) how -= 2;
@@ -1078,7 +1079,7 @@ void delete_node_(head * hd, node * student) {
     new_no_(hd);
 }
 
-void delete_str_(head * hd, char * (*field)(node*), char how, char * value) {
+void delete_str_(head * hd, char * (*field)(node*), int how, char * value) {
     node * student;
     boolean printed;
     printed = 0;
@@ -1100,7 +1101,7 @@ void delete_str_(head * hd, char * (*field)(node*), char how, char * value) {
     }
 }
 
-void delete_int_(head * hd, char column, char how, int value) {
+void delete_int_(head * hd, int column, int how, int value) {
     node * student;
     if (how == 1) {
         for (student = hd->first; student != NULL; student = student->next) {
@@ -1137,7 +1138,7 @@ void delete_int_(head * hd, char column, char how, int value) {
     }
 }
 
-void delete_float_(head * hd, char column, char how, float value) {
+void delete_float_(head * hd, int column, int how, float value) {
     node * student;
     boolean printed;
     printed = 0;
@@ -1179,7 +1180,7 @@ void delete_float_(head * hd, char column, char how, float value) {
 boolean filter_by(head* hd, char * cmd) {
     /* Operates Similar to a 'Delete By' function
      * (Would be too complicated and unreadable to use function pointers, but maybe?) */
-    char column, how;
+    int column, how;
     char * line_value;
     int int_value;
     float float_value;
@@ -1247,7 +1248,7 @@ boolean filter_by(head* hd, char * cmd) {
                    "8 - GIA 1\n"
                    "9 - GIA 2\n"
                    "10 - GIA 3\n\nColumn: ");
-            column = cbgets(stdin);
+            column = ibgets(stdin);
             if (column == 0) column = -4;
             else if (column >= 1 && column <= 10) column -= 3;
             else {
@@ -1264,7 +1265,7 @@ boolean filter_by(head* hd, char * cmd) {
                    "4 - >\n"
                    "5 - >=\n"
                    "6 - ==\n\nRelation: ");
-            how = cbgets(stdin);
+            how = ibgets(stdin);
             if (how == 0) column = -4;
             else if (how >= 1 && how <= 2) how -= 3;
             else if (how >= 3 && how <= 6) how -= 2;
@@ -1303,7 +1304,7 @@ boolean filter_by(head* hd, char * cmd) {
     return cancel;
 }
 
-void filter_str_(head * hd, char * (*field)(node*), char how, char * value) {
+void filter_str_(head * hd, char * (*field)(node*), int how, char * value) {
     node * student;
     boolean printed;
     printed = 0;
@@ -1332,7 +1333,7 @@ void filter_str_(head * hd, char * (*field)(node*), char how, char * value) {
     if(!printed) printf("Nothing Found.\n");
 }
 
-void filter_int_(head * hd, char column, char how, int value) {
+void filter_int_(head * hd, int column, int how, int value) {
     node * student;
     boolean printed;
     printed = 0;
@@ -1382,7 +1383,7 @@ void filter_int_(head * hd, char column, char how, int value) {
     if(!printed) printf("Nothing Found.\n");
 }
 
-void filter_float_(head * hd, char column, char how, float value) {
+void filter_float_(head * hd, int column, int how, float value) {
     node * student;
     boolean printed;
     printed = 0;
@@ -1716,6 +1717,7 @@ char ** split(char * line, const char sep) {
                 m++;
             }
         }
+        result_array[m][i - k] = '\0';
     }
 
     return result_array;
@@ -1818,7 +1820,7 @@ char * striped(const char *string, char border) {
             for (k = i, k1 = 0; k <= j; k++, k1++) {
                 result[k1] = string[k];
             }
-            result[k + 1] = '\0';
+            result[k1] = '\0';
         } else {
             /* Returns string \0 if String consists only from Border */
             result = malloc(1);
