@@ -386,6 +386,7 @@ void save(head * hd) {
                 temp->gia_results[0], temp->gia_results[1], temp->gia_results[2]);
         if (temp->next != NULL) fprintf(save, "\n");
     }
+    fclose(save);
 }
 
 boolean enter(head * hd, f_head * f_hd, char * cmd) {
