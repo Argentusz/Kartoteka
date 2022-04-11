@@ -1,8 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+/* clear command for terminal. Checked in Windows, Linux, macOS */
 #define clear system("clear||@cls");
+/* maximum length of a command printed by a user */
 #define COMMAND_LEN 256
+/* save file Kartoteka uses to keep data */
 #define SAVE_FILE "kartoteka.csv"
 /* boolean here is a char type that is used to keep only 1 or 0 (for easier reading) */
 #define boolean char
@@ -599,7 +602,7 @@ boolean export(head * hd, char * cmd) {
             }
             cancel = 1;
             printf("warning: File '%s' already exists.\n"
-                   "This will overwrite file\n"
+                   "This will overwrite the file\n"
                    "Are you sure you want to continue? (Y/N): ", file_name);
             bgets(yn, 11, stdin);
             if ((*yn == 'Y' || *yn == 'y') && *(yn + 1) == '\0') cancel = 0;
@@ -1902,6 +1905,7 @@ void help(char * cmd) {
     if (!strcmp(cmd, "Help"))
         printf("Available Commands:\n"
                "Quit                             - to quit\n"
+               "Save                             - to save data into save file\n"
                "Enter <csv/lbl>                  - to fill Kartoteka from keyboard\n"
                "Import <file name>               - to fill Kartoteka from file\n"
                "Export <file name>               - to make file from Kartoteka data\n"
