@@ -44,7 +44,7 @@ Requirements to the program:
 - Functions can contain parameters that can be printed by a user with a function (in documentation parameters appear in <_>)  
   *Without parameters Function will be asked for them afterwards (except `Show` Function)*
 - Deifferent Functions can be called in one line using `&` sign *(e.g. Swap 1 2 & Show 3)*
-- Kartoteka uses `kartoteka.csv` file to save information *(see `Save` function)*
+- Kartoteka uses `kartoteka.csv` file to save information *(see `Save` and `Help` Functions)*
   At the start of the program uses it to load information
 ### Quit
 Quits the program.
@@ -216,3 +216,99 @@ Usage Examples:
 | No | ID | Name                    | Faculty | Age | Score | C.R. | GIA Results     |
 | 5  | 3  | Smirnov S.S.            | FEI     | 18  | 4.050 | 0.87 | 86  | 86  | 87  |
 ```
+### Delete All
+Delets all the data
+### Delete <_No_>
+Deletes line with a give No
+
+Usage Example:
+```
+>>> Delete 2
+Done.
+```
+### Delete By <_Column_> <_(how)value_>
+Deletes all the lines that satisfy requirements (similiar to `Filter` Function)
+
+Available Columns:  
+- Name
+- Faculty
+- Age
+- ID
+- Score
+- CR
+- GIA 1
+- GIA 2
+- GIA 3
+
+Available Requirements:
+- \> (more)
+- < (less)
+- \>= (more or equal)
+- <= (less or equal)
+- == (strict equal)
+- = (non-strict equal)
+
+*Note: non-strict equal (=) will consider **string** value as a first substring  
+       strict equal (==) will look for exact match.  
+       These two signs will behave equally for numerous columns*
+
+Usage Examples:
+```
+>>> Delete By Age > 18
+Done.
+```
+```
+>>> Delete By Name = Brzeczyszczykiewicz
+Done.
+```
+```
+>>> Delete By Name == Brzeczyszczykiewicz G.
+Done.
+```
+### Quick
+Shows first 5 lines of database.  
+*Called at the first launch of the program*
+### Source
+Shows a link to this GitHub repository 
+### Help <_Command_>
+If not given any argument shows list of all available commands  
+Else shows specific Function documentation
+
+Usage Examples:
+```
+>>> Help
+Available Commands:
+Quit                             - to quit
+Save                             - to save data into save file
+Enter <csv/lbl>                  - to fill Kartoteka from keyboard
+Import <file name>               - to fill Kartoteka from file
+Export <file name>               - to make file from Kartoteka data
+Show <max amount>                - to show up to positive max amount of lines
+Change <No> <csv/lbl>            - to change line #N from keyboard
+Swap <No1> <No2>                 - to swap lines with no N1 and N2
+Sort <Column> <a/d>              - to sort column ascending/descending
+Filter <Column> <(how)value>     - to show all lines with necessary value
+Delete All                       - to delete all Kartoteka database
+Delete <No>                      - to delete line #N
+Delete By <Column> <(how)value>  - to delete lines with necessary value
+Quick                            - to quick look data in Kartoteka
+Clear                            - to clear the screen
+<Command> & <Command> . . .      - to deploy several Commands
+Source                           - to show a link on a source code.
+Help <Command>                   - for documentation
+
+Use Help <Command> for specific Function documentation
+```
+```
+>>> Help Help
+Help function is used to keep documentation
+And access it from the program
+With no arguments shows all the available Kartoteka commands
+Can also show documentation of the specific function
+
+Usage Example:
+Help Enter
+```
+## Within Source Code
+- Defined *boolean* type as a char that keeps only 0 or 1 for easier code reading *(since C90 has no __bool__ type)*
+- Internal functions named with an underscore line at the end *(except BFuncs functions that were written by me before this project)*
