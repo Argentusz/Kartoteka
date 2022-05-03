@@ -10,7 +10,7 @@
 #define SAVE_FILE "kartoteka.csv"
 /* boolean here is a char type that is used to keep only 1 or 0 (for easier reading) */
 #define boolean char
-/**/
+/* float numbers compare precision */
 #define EPSILON 0.00001
 
 /* Faculties Doubly linked list */
