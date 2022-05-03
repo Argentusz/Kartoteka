@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 /* clear command for terminal. Checked in Windows, Linux, macOS */
 #define clear system("clear||@cls");
 /* maximum length of a command printed by a user */
@@ -9,6 +10,8 @@
 #define SAVE_FILE "kartoteka.csv"
 /* boolean here is a char type that is used to keep only 1 or 0 (for easier reading) */
 #define boolean char
+/**/
+#define EPSILON 0.00001
 
 /* Faculties Doubly linked list */
 typedef struct fac_struct {
@@ -433,12 +436,12 @@ boolean enter(head * hd, f_head * f_hd, char * cmd) {
     *yn = 'Y'; *(yn+1) = 0;
     /* Line by Line Mode */
     if (*mode == 'l') {
+        temp = malloc(41);
+        if(temp == NULL) {
+            printf("fatal error: Unable to Allocate Memory (enter: temp)\n\n");
+            exit(1);
+        }
         while(*yn == 'Y' || *yn == 'y') {
-            temp = malloc(41);
-            if(temp == NULL) {
-                printf("fatal error: Unable to Allocate Memory (enter: temp)\n\n");
-                exit(1);
-            }
             student = (node*)malloc(sizeof(node));
             if(student == NULL) {
                 printf("fatal error: Unable to Allocate Memory (enter: student)\n\n");
@@ -512,17 +515,18 @@ boolean import(head * hd, f_head * f_hd, char * cmd) {
     FILE * fp = NULL;
     char * file_name, * line;
     boolean cancel;
-    file_name = malloc(32);
-    if(file_name == NULL) {
-        printf("fatal error: Unable to Allocate Memory (import: file_name)\n\n");
-        exit(1);
-    }
+
     /* Looking For Arguments in Command */
     if(*(cmd+6) != '\0') {
         for(cmd += 6; *cmd == ' '; cmd++);
         file_name = just_copy_(cmd);
     } else {
         /* If Arguments not found */
+        file_name = malloc(32);
+        if(file_name == NULL) {
+            printf("fatal error: Unable to Allocate Memory (import: file_name)\n\n");
+            exit(1);
+        }
         printf("Type File Name to import from (Just hit Enter to cancel): ");
         bgets(file_name, 31, stdin);
     }
@@ -548,7 +552,7 @@ boolean import(head * hd, f_head * f_hd, char * cmd) {
         while (bgets(line, 128, fp) != NULL) {
             csv_line_parser_(hd, f_hd, line);
         }
-        fclose(fp);
+        if (fp != NULL) fclose(fp);
     }
 
     return cancel;
@@ -575,17 +579,17 @@ boolean export(head * hd, char * cmd) {
         if((*yn == 'Y' || *yn == 'y') && *(yn+1) == '\0') cancel = 0;
     }
     if(!cancel) {
-        file_name = malloc(32);
-        if(file_name == NULL) {
-            printf("fatal error: Unable to Allocate Memory (export: file_name)\n\n");
-            exit(1);
-        }
         /* Looking For Arguments in Command */
         if (*(cmd + 6) != '\0') {
             for(cmd += 6; *cmd == ' '; cmd++);
             file_name = just_copy_(cmd);
         } else {
             /* If Arguments not found */
+            file_name = malloc(32);
+            if(file_name == NULL) {
+                printf("fatal error: Unable to Allocate Memory (export: file_name)\n\n");
+                exit(1);
+            }
             printf("Type File Name to export to (Just hit Enter to cancel): ");
             bgets(file_name, 31, stdin);
         }
@@ -697,10 +701,6 @@ boolean change(head * hd, f_head * f_hd, char * cmd) {
         printf("fatal error: Unable to Allocate Memory (change: mode)\n\n");
         exit(1);
     }
-    if(mode == NULL) {
-        printf("fatal error: Unknown Memory Error while allocating memory in Change. (mode)\n");
-        exit(1);
-    }
     *mode = 0;
     /* Looking For Arguments in Command */
     if(*(cmd + 6) != '\0') {
@@ -713,6 +713,7 @@ boolean change(head * hd, f_head * f_hd, char * cmd) {
                 /* Looking how many Symbols Number took */
                 num_len = 0;
                 for (i = no; i; i /= 10, num_len++);
+                /* Going to the next argument in the cmd */
                 cmd += num_len;
                 /* First Argument is a Operation Mode (csv/lbl) */
                 if(*cmd != '\0') {
@@ -753,10 +754,6 @@ boolean change(head * hd, f_head * f_hd, char * cmd) {
                     temp = malloc(41);
                     if(temp == NULL) {
                         printf("fatal error: Unable to Allocate Memory (change: temp)\n\n");
-                        exit(1);
-                    }
-                    if(temp == NULL) {
-                        printf("fatal error: Unknown Memory Error while allocating memory in Change. (temp)\n");
                         exit(1);
                     }
                     printf("Enter the name: ");
@@ -813,6 +810,7 @@ boolean change(head * hd, f_head * f_hd, char * cmd) {
         if (no > hd->cnt) printf("error: This No is out of bounds\n");
         cancel = 1;
     }
+    free(mode);
     return cancel;
 }
 
@@ -957,11 +955,6 @@ boolean delete_by(head* hd, char * cmd) {
                 for(;*cmd == ' '; cmd++);
                 /* Third Argument - Value (Type Depends on Column) */
                 if(column < 0) {
-                    line_value = malloc(32);
-                    if(line_value == NULL) {
-                        printf("fatal error: Unable to Allocate Memory (delete_by: line_value)\n\n");
-                        exit(1);
-                    }
                     line_value = cmd;
                     if(how == 1 || how == 4)
                     {
@@ -1149,7 +1142,7 @@ void delete_float_(head * hd, int column, int how, float value) {
     printed = 0;
     if (how == 1) {
         for (student = hd->first; student != NULL; student = student->next) {
-            if (*(&student->avg_score + column - 3) == value) {
+            if (fabs((double)(*(&student->avg_score + column - 3) - value)) < EPSILON) {
                 delete_node_(hd, student);
             }
         }
@@ -1394,7 +1387,7 @@ void filter_float_(head * hd, int column, int how, float value) {
     printed = 0;
     if (how == 1) {
         for (student = hd->first; student != NULL; student = student->next) {
-            if (*(&student->avg_score + column - 3) == value) {
+            if (fabs((double)(*(&student->avg_score + column - 3) - value)) < EPSILON) {
                 if(!printed) printf("| %-2s | %-2s | %-23s | %-7s | %-3s | %3s | %2s | %-15s |\n", "No", "ID", "Name", "Faculty", "Age", "Score", "C.R.","GIA Results");
                 output_(student);
                 printed = 1;
@@ -1489,7 +1482,7 @@ char sort(head * hd, char * cmd) {
         if (mode <= 0) mode -= 1;
         if(mode < -3 || mode > 7) { mode = 0; printf("typo error: column not found.\n"); }
     }
-    while(ad == 0 && mode != -3 && ad != -3) {
+    while(ad == 0 && mode != -3) {
         printf("How to sort?\n0 - Cancel\n1 - Ascending\n2 - Descending\n\nMode: ");
         ad = (char)ibgets(stdin);
         if(ad == 0) ad = -3;
@@ -1505,8 +1498,7 @@ char sort(head * hd, char * cmd) {
             str_q_sort_(hd->first, hd->last, get_name_, ad);
         else
             printf("unknown error: Unknown operation mode of Sort (mode > 7 or mode < -3)\n");
-    }
-    else cancel = 1;
+    } else cancel = 1;
     return cancel;
 }
 
@@ -1620,7 +1612,7 @@ boolean swap(head * hd, char * cmd) {
         }
     }
     /* If Arguments not found */
-    if(err == 1 || no1 == 0 || no2== 0) {
+    if(err == 1 || no1 == 0 || no2 == 0) {
         while (no1 == 0 && !cancel) {
             printf("Type no of first string to swap (0 to cancel): ");
             no1 = ibgets(stdin);
@@ -1630,7 +1622,7 @@ boolean swap(head * hd, char * cmd) {
         while (no2 == 0 && !cancel) {
             printf("Type no of second string to swap (0 to cancel): ");
             no2 = ibgets(stdin);
-            if(no2 < 0) { printf("typo error: No should be a positive number\n"); no1 = 0; }
+            if(no2 < 0) { printf("typo error: No should be a positive number\n"); no2 = 0; }
             else if (no2 == 0) cancel = 1;
         }
     }
@@ -1690,9 +1682,11 @@ void make_new_f_(f_head * f_hd, char * node_name) {
 
 char ** split(char * line, const char sep) {
     int separators_in_line, i, k, m;
+    unsigned long length;
     char ** result_array = NULL;
+    length = strlen(line);
     /* Looking amount of separators for Memory Allocation */
-    for (i = 0, separators_in_line = 0; i < strlen(line); i++)
+    for (i = 0, separators_in_line = 0; i < length; i++)
         if(line[i] == sep) separators_in_line++;
 
     result_array = (char**)malloc((separators_in_line + 1) * sizeof (char*));
@@ -1703,7 +1697,7 @@ char ** split(char * line, const char sep) {
     /* Allocating Memory for each String Element */
     for(i = 0; i < separators_in_line + 1; i++) {
         if(result_array != NULL) {
-            result_array[i] = (char*)malloc(strlen(line) * sizeof(char));
+            result_array[i] = malloc(length);
             if (result_array[i] == NULL) result_array = NULL;
         } else i = separators_in_line + 1;
     }
@@ -1711,19 +1705,18 @@ char ** split(char * line, const char sep) {
         printf("fatal error: Unable to Allocate Memory (split: result_array)\n\n");
         exit(1);
     }
+
     /* Splitting */
-    if (result_array != NULL) {
-        k = m = 0;
-        for (i = 0; i < strlen(line); i++) {
-            if (line[i] != sep) result_array[m][i - k] = line[i];
-            else {
-                result_array[m][i - k] = '\0';
-                k = i + 1;
-                m++;
-            }
+    k = m = 0;
+    for (i = 0; i < length; i++) {
+        if (line[i] != sep) result_array[m][i - k] = line[i];
+        else {
+            result_array[m][i - k] = '\0';
+            k = i + 1;
+            m++;
         }
-        result_array[m][i - k] = '\0';
     }
+    result_array[m][i - k] = '\0';
 
     return result_array;
 }
@@ -1815,7 +1808,7 @@ char * striped(const char *string, char border) {
         /* Index of a First 'useful' char */
         for (i = 0; string[i] == border; i++);
         /* Index of a Last 'useful' char */
-        for(j = string_len-1; string[j] == border && j > 0; j--);
+        for(j = string_len-1;j > 0 && string[j] == border; j--);
         /* If String consists only from Border j<=i */
         if(j > i) {
             result = malloc(i + j + 1);
