@@ -1079,8 +1079,6 @@ void delete_node_(head * hd, node * student) {
 
 void delete_str_(head * hd, char * (*field)(node*), int how, char * value) {
     node * student;
-    boolean printed;
-    printed = 0;
     /* how == 4 -> == (Exact match)*/
     if(how == 4) {
         for (student = hd->first; student != NULL; student = student->next) {
@@ -1234,7 +1232,7 @@ boolean filter_by(head* hd, char * cmd) {
     }
     if(!done){
         while (column == -3) {
-            printf("Choose Column to filter_by\n"
+            printf("Choose Column to Filter By\n"
                    "0 - Cancel\n"
                    "1 - Name\n"
                    "2 - Faculty\n"
@@ -1866,7 +1864,7 @@ char * lower_str_(char * string) {
     for(gol = string; *gol != '\0'; gol++) {
         if(*gol <= 'Z' && *gol >= 'A') *gol += 32;
     }
-    return gol;
+    return string;
 }
 
 char * just_copy_(const char * st) {
