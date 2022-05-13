@@ -707,7 +707,7 @@ boolean change(head * hd, f_head * f_hd, char * cmd) {
         cmd += 6;
         /* First Argument is a Number */
         for(;*cmd == ' '; cmd++);
-        if(*cmd < '9' && *cmd > '0') {
+        if(*cmd <= '9' && *cmd >= '0') {
             no = (int)strtol(cmd, NULL, 10);
             if(no > 0) {
                 /* Looking how many Symbols Number took */
