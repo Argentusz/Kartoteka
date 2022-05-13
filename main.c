@@ -895,7 +895,7 @@ char delete(head * hd, char * cmd) {
     if(*(cmd + 6) != '\0') {
         cmd += 6;
         for(;*cmd == ' '; cmd++);
-        if(*cmd < '9' && *cmd > '0') no = (int)strtol(cmd, NULL, 10);
+        if(*cmd <= '9' && *cmd >= '0') no = (int)strtol(cmd, NULL, 10);
         else {
             printf("Argument of Delete function should be a number.\n"
                    "Print number of a line to delete (0 to cancel): ");
