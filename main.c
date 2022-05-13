@@ -925,6 +925,7 @@ boolean delete_by(head* hd, char * cmd) {
     float float_value;
     boolean done, cancel;
     done = 0;
+    how = 0;
     cancel = 0;
     column = -3;
     /* Looking for Arguments in Command */
@@ -1182,6 +1183,7 @@ boolean filter_by(head* hd, char * cmd) {
     float float_value;
     boolean done, cancel;
     done = 0;
+    how = 0;
     cancel = 0;
     column = -3;
     if(*(cmd+6) != '\0') {
