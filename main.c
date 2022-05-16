@@ -62,7 +62,7 @@ boolean swap(head * hd, char * cmd);
 /* Sort By Any Column */
 boolean sort(head * hd, char * cmd);
 /* Show Nodes that meet the requirements */
-boolean filter_by(head* hd, char * cmd);
+boolean filter_by(head * hd, char * cmd);
 /* Delete Everything */
 void delete_all(head * hd, f_head * f_hd);
 /* Delete One Node */
@@ -78,7 +78,7 @@ void source_code();
 
 /** Internal Functions **/
 /* Parse Line and Append to a List */
-void csv_line_parser_(head *hd, f_head* f_hd, char * line);
+void csv_line_parser_(head *hd, f_head * f_hd, char * line);
 /* Returns Address of Faculty with a Given Name */
 f_node * foreign_key_(f_head *f_hd, char * fac_name);
 /* Creates New Faculty */
@@ -157,12 +157,12 @@ int main() {
     getchar();
     clear
     /* Allocating Memory & Create dummies of heads */
-    f_hd = (f_head*)malloc(sizeof(f_head));
+    f_hd = (f_head *)malloc(sizeof(f_head));
     if(f_hd == NULL) {
         printf("fatal error: Unable to Allocate Memory (main: f_hd)\n\n");
         exit(1);
     }
-    hd = (head*)malloc(sizeof(head));
+    hd = (head *)malloc(sizeof(head));
     if(hd == NULL) {
         printf("fatal error: Unable to Allocate Memory (main: hd)\n\n");
         exit(1);
@@ -814,7 +814,7 @@ boolean change(head * hd, f_head * f_hd, char * cmd) {
     return cancel;
 }
 
-void csv_line_parser_(head *hd, f_head* f_hd, char * line) {
+void csv_line_parser_(head *hd, f_head * f_hd, char * line) {
     int j;
     node *db, *temp;
     char **splitLine;
@@ -918,7 +918,7 @@ char delete(head * hd, char * cmd) {
     return cancel;
 }
 
-boolean delete_by(head* hd, char * cmd) {
+boolean delete_by(head * hd, char * cmd) {
     int column, how;
     char * line_value;
     int int_value;
@@ -1080,7 +1080,7 @@ void delete_node_(head * hd, node * student) {
 
 void delete_str_(head * hd, char * (*field)(node*), int how, char * value) {
     node * student;
-    /* how == 4 -> == (Exact match)*/
+    /* how == 4 -> == (Exact match) */
     if(how == 4) {
         for (student = hd->first; student != NULL; student = student->next) {
             if (!strcmp(field(student), value)) {
@@ -1137,8 +1137,6 @@ void delete_int_(head * hd, int column, int how, int value) {
 
 void delete_float_(head * hd, int column, int how, float value) {
     node * student;
-    boolean printed;
-    printed = 0;
     if (how == 1) {
         for (student = hd->first; student != NULL; student = student->next) {
             if (fabs((double)(*(&student->avg_score + column - 3) - value)) < EPSILON) {
@@ -1174,7 +1172,7 @@ void delete_float_(head * hd, int column, int how, float value) {
     }
 }
 
-boolean filter_by(head* hd, char * cmd) {
+boolean filter_by(head * hd, char * cmd) {
     /* Operates Similar to a 'Delete By' function
      * (Would be too complicated and unreadable to use function pointers, but maybe?) */
     int column, how;
