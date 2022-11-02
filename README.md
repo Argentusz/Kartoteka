@@ -1,6 +1,6 @@
 # Kartoteka
 
-*Kartoteka is a C project made within a framework of a cource project by Maksim Trostin*
+*Kartoteka is a C project made within a framework of a course project by Maksim Trostin*
 
 ## Original Task
 
